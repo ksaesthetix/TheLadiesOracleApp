@@ -5,6 +5,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 
 export const options = { headerShown: false };
 
+const API_URL = 'https://theladiesoracleapp.onrender.com';
+
 type Question = { _id: string; number?: number; question?: string };
 
 export default function PageThree() {

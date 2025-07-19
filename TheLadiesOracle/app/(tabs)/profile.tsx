@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import globalStyles from '../../constants/styles';
 
-const API_URL = 'https://congenial-tribble-4rqj6wr7vwv27wqj-3000.app.github.dev';
+const API_URL = 'https://theladiesoracleapp.onrender.com';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<{ email: string; name?: string; avatarUri?: string } | null>(null);

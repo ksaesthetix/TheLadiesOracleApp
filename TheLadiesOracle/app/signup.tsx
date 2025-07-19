@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 
 export const options = { headerShown: false };
 
-const API_URL = 'https://congenial-tribble-4rqj6wr7vwv27wqj-3000.app.github.dev';
+const API_URL = 'https://theladiesoracleapp.onrender.com';
 
 export default function SignupPage() {
   const router = useRouter();
