@@ -16,7 +16,7 @@ export default function PageThree() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://congenial-tribble-4rqj6wr7vwv27wqj-3000.app.github.dev/questions')
+    fetch(`${API_URL}/questions`)
       .then(res => res.json())
       .then(data => {
         console.log('Questions from API:', data);

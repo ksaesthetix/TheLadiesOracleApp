@@ -4,7 +4,7 @@ import globalStyles from '../constants/styles';
 import { useRouter } from 'expo-router';
 
 export const options = { headerShown: false };
-
+const API_URL = 'https://theladiesoracleapp.onrender.com';
 type IconDoc = { _id: string; symbol: string };
 
 export default function PageTwo() {
@@ -13,7 +13,7 @@ export default function PageTwo() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://congenial-tribble-4rqj6wr7vwv27wqj-3000.app.github.dev/icons')
+    fetch(`${API_URL}/icons`)
       .then(res => res.json())
       .then(data => {
         setIcons(data);
