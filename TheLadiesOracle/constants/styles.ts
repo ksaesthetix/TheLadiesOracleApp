@@ -51,8 +51,9 @@ const globalStyles = StyleSheet.create({
     paddingTop: 0,
   },
   pageText: {
-    fontSize: 24,
+    fontSize: 34,
     color: COLORS.text,
+    textAlign: 'center',
   },
   titleContainer: {
     flexDirection: 'row',
@@ -96,10 +97,11 @@ const globalStyles = StyleSheet.create({
     padding: 10,
   },
   reactLogo: {
-    width: 620,
+    width: 820,
+    maxWidth: '90%',
     height: undefined,
-    aspectRatio: 620 / 400,
-    resizeMode: 'contain',
+    aspectRatio: 620 / 300,
+    //resizeMode: 'contain',
     alignSelf: 'center',
     marginBottom: 16,
   },

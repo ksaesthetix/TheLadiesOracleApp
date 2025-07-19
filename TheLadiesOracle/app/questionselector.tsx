@@ -19,7 +19,7 @@ export default function PageThree() {
     fetch(`${API_URL}/questions`)
       .then(res => res.json())
       .then(data => {
-        console.log('Questions from API:', data);
+        //console.log('Questions from API:', data);
         setQuestions(data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0)));
         setLoading(false);
       })

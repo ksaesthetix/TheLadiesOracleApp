@@ -27,3 +27,5 @@ export function WisdomArchiveProvider({ children }: { children: React.ReactNode 
 export function useWisdomArchive() {
   return useContext(WisdomArchiveContext);
 }
+
+export default WisdomArchiveProvider;

@@ -57,9 +57,15 @@ export default function HomeScreen() {
             style={globalStyles.reactLogo}
           />
         }>
-        <ThemedView style={globalStyles.titleContainer}>
-          <ThemedText type="title">Welcome to The Ladies Oracle!</ThemedText>
-        </ThemedView>
+          {/* <ThemedView style={globalStyles.titleContainer}>
+            <ThemedText type="title" style={globalStyles.pageText}>Welcome</ThemedText>
+          </ThemedView>
+          <ThemedView style={globalStyles.titleContainer}>
+            <ThemedText type="title" style={globalStyles.pageText}>to</ThemedText>
+          </ThemedView>
+          <ThemedView style={globalStyles.titleContainer}>
+            <ThemedText type="title" style={globalStyles.pageText}>The Ladies Oracle!</ThemedText>
+          </ThemedView> */}
         <View style={globalStyles.buttonContainer}>
           <TouchableOpacity 
             style={globalStyles.button} 
