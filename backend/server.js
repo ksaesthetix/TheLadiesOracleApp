@@ -23,7 +23,8 @@ app.use(cors({
 app.use(express.json());
 
 // Fixed MongoDB connection - remove quotes and add fallback
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:10000/theladiesoracle';
+//const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:10000/theladiesoracle';
+const MONGO_URI='mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle'
 
 // Add debugging
 console.log('MongoDB URI configured:', MONGO_URI ? 'Yes' : 'No');
