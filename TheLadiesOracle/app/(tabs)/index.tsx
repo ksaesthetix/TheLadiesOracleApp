@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Image, Modal, Text, TouchableOpacity, View } from 'react-native';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import globalStyles from '../../constants/styles';
+import globalStyles, { COLORS } from '../../constants/styles';
 import { useRouter } from 'expo-router';
 import { useWisdomArchive } from '../contexts/WisdomArchiveContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const WISE_QUOTES = [
   "Wisdom begins in wonder.",
@@ -24,6 +25,16 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentQuote, setCurrentQuote] = useState('');
   const { addToArchive } = useWisdomArchive();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      const email = await AsyncStorage.getItem('userEmail');
+      setIsLoggedIn(!!email);
+    };
+    checkLogin();
+    // Optionally, add a listener for focus to re-check login status
+  }, []);
 
   const showRandomQuote = () => {
     const quote = WISE_QUOTES[Math.floor(Math.random() * WISE_QUOTES.length)];
@@ -39,7 +50,7 @@ export default function HomeScreen() {
   return (
     <>
       <ParallaxScrollView
-        headerBackgroundColor={{ light: '', dark: '#1D3D47' }}
+        headerBackgroundColor={{ light: COLORS.headerBackgroundColor, dark: COLORS.headerBackgroundColorDark }}
         headerImage={
           <Image
             source={require('@/assets/images/The_Ladies_Oracle_Logo.jpg')}
@@ -65,6 +76,13 @@ export default function HomeScreen() {
             onPress={() => router.push('/archive')}>
             <Text style={globalStyles.secondaryButtonText}>Archive</Text>
           </TouchableOpacity>
+          {!isLoggedIn && (
+            <TouchableOpacity
+              style={globalStyles.secondaryButton}
+              onPress={() => router.push('/login')}>
+              <Text style={globalStyles.secondaryButtonText}>Login</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ParallaxScrollView>
       <Modal

@@ -1,16 +1,44 @@
 import { StyleSheet } from 'react-native';
 
-// Define your color palette
+// Updated color palette for a more elegant, modern look
 export const COLORS = {
-  background: '#ebe2d3',
-  primary: '#865456',
-  accent: '#ae9263',
-  secondary: '#5a4632',
-  highlight: '#A97373',
+  // Backgrounds
+  background: '#f8f5f0',        // Soft off-white
+  backgroundLight: '#fdfaf6',   // Lighter beige
+  backgroundDark: '#b8a48a',    // Muted taupe
+
+  // Primary (Deep Rose)
+  primary: '#7c3a2f',           // Deep rose
+  primaryLight: '#f8efef',      // Very light rose
+  primaryDark: '#3a2121',       // Deep brown
+
+  // Accent (Gold)
+  accent: '#c9a86a',            // Warm gold
+  accentLight: '#f9f5e9',       // Pale gold
+  accentDark: '#7a5a2f',        // Deep gold
+
+  // Secondary (Rich Brown)
+  secondary: '#4e3629',         // Rich brown
+  secondaryLight: '#ede6df',    // Soft brown
+  secondaryDark: '#271d14',     // Very dark brown
+
+  // Highlight (Rose-Pink)
+  highlight: '#b97a7a',         // Muted rose-pink
+  highlightLight: '#fbeeee',    // Very light pink
+  highlightDark: '#452828',     // Deep rose
+
   white: '#fff',
-  text: '#5a4632',
-  muted: '#ae9263',
-  border: '#ae9263',
+  text: '#4e3629',              // Rich brown for text
+  muted: '#b8a48a',             // Muted taupe for muted text
+  border: '#c9a86a',            // Gold for borders
+  headerBackgroundColor: '#ebe2d3', // Add this line for header backgrounds
+  headerBackgroundColorDark: '#3a2121',
+
+  // Aliases for convenience
+  rose: '#7c3a2f',
+  gold: '#c9a86a',
+  brown: '#4e3629',
+  hoverPink: '#b97a7a',
 };
 
 const globalStyles = StyleSheet.create({
@@ -42,21 +70,24 @@ const globalStyles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: COLORS.border,
     backgroundColor: COLORS.background,
+    color: COLORS.text,
+  },
+  settingsText: {
+    fontSize: 16,
+    color: COLORS.primary,
+    marginLeft: 12,
   },
   aboutText: {
     fontSize: 12,
     color: COLORS.primary,
     marginLeft: 12,
   },
-  
-  // Header and title containers
   headerImage: {
     color: COLORS.secondary,
     bottom: -90,
     left: -35,
     position: 'absolute',
   },
-  // Home screen styles
   stepContainer: {
     gap: 8,
     marginBottom: 8,
@@ -80,11 +111,11 @@ const globalStyles = StyleSheet.create({
     padding: 24,
   },
   buttonContainer: {
-    flexDirection: 'column', // stack vertically
+    flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'stretch',   // make buttons fill the width if desired
+    alignItems: 'stretch',
     marginVertical: 16,
-    gap: 12,                 // space between buttons (React Native >=0.71)
+    gap: 12,
   },
   logo: {
     width: 120,
@@ -92,51 +123,56 @@ const globalStyles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: 'bold',
     color: COLORS.primary,
-    marginBottom: 12,
+    marginBottom: 16,
     textAlign: 'center',
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 18,
     color: COLORS.secondary,
     marginBottom: 32,
     textAlign: 'center',
+    fontStyle: 'italic',
   },
   button: {
     backgroundColor: COLORS.primary,
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 36,
     borderRadius: 30,
     marginBottom: 0,
-    elevation: 2,
+    elevation: 3,
     width: '100%',
     alignItems: 'center',
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
   },
   buttonText: {
     color: COLORS.white,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
   secondaryButton: {
-    borderColor: COLORS.primary,
+    borderColor: COLORS.accent,
     borderWidth: 2,
     paddingVertical: 14,
     paddingHorizontal: 36,
-    marginBottom: 0,
     borderRadius: 30,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.backgroundLight,
     width: '100%',
     alignItems: 'center',
+    marginTop: 10,
   },
   secondaryButtonText: {
     color: COLORS.primary,
     fontSize: 20,
     fontWeight: '600',
   },
-
-  // Profile page styles
   avatar: {
     width: 120,
     height: 120,
@@ -181,6 +217,16 @@ const globalStyles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 24,
     gap: 10,
+  },
+  iconSymbol: {
+    fontSize: 20,
+    color: COLORS.secondaryDark,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    textShadowColor: COLORS.accent,
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 6,
+    letterSpacing: 2,
   },
   iconCircle: {
     width: 64,
@@ -261,7 +307,7 @@ const globalStyles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     borderRadius: 18,
     padding: 28,
     alignItems: 'center',
@@ -270,20 +316,20 @@ const globalStyles = StyleSheet.create({
   },
   quoteText: {
     fontSize: 20,
-    color: '#865456',
+    color: COLORS.primary,
     fontStyle: 'italic',
     marginBottom: 24,
     textAlign: 'center',
   },
   saveButton: {
-    backgroundColor: '#865456',
+    backgroundColor: COLORS.primary,
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 20,
     marginBottom: 12,
   },
   saveButtonText: {
-    color: '#fff',
+    color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -291,15 +337,13 @@ const globalStyles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 18,
     borderRadius: 16,
-    backgroundColor: '#ebe2d3',
+    backgroundColor: COLORS.background,
   },
   closeButtonText: {
-    color: '#865456',
+    color: COLORS.primary,
     fontWeight: '600',
     fontSize: 15,
   },
-
-  // Archive page styles
   archiveContainer: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -341,6 +385,31 @@ const globalStyles = StyleSheet.create({
     color: COLORS.primary,
     fontStyle: 'italic',
     textAlign: 'center',
+  },
+  authInput: {
+    width: '100%',
+    borderWidth: 1.5,
+    borderColor: COLORS.accent,
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 18,
+    fontSize: 18,
+    backgroundColor: COLORS.backgroundLight,
+    color: COLORS.text,
+    shadowColor: COLORS.accentLight,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+  },
+  authLink: {
+    color: COLORS.primary,
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 18,
+  },
+  authLinkBold: {
+    fontWeight: 'bold',
+    color: COLORS.accent,
   },
 });
 
