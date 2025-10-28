@@ -22,68 +22,52 @@ app.use(cors({
 
 app.use(express.json());
 
-// Fixed MongoDB connection - remove quotes and add fallback
-//const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:10000/theladiesoracle';
-const MONGO_URI='mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle'
-
-// Add debugging
-console.log('MongoDB URI configured:', MONGO_URI ? 'Yes' : 'No');
+// MongoDB connection
+const MONGO_URI = 'mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle';
 
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected successfully!'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('✅ MongoDB connected successfully!'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Quote schema/model
+// Models
 const Quote = mongoose.model('Quote', { text: String });
-
-// Question schema/model
 const Question = mongoose.model('Question', new mongoose.Schema({}, { strict: false }), 'questions');
-
-// Icon schema/model
 const Icon = mongoose.model('Icon', new mongoose.Schema({}, { strict: false }), 'icons');
+const User = mongoose.model('User', new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  name: String,
+  avatarUri: String
+}), 'users');
 
-// User schema/model
-const User = mongoose.model(
-  'User',
+const QuestionAnswerIconMapping = mongoose.model(
+  'QuestionAnswerIconMapping',
   new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    name: { type: String },
-    avatarUri: { type: String },
+    question: Number,
+    question_id: mongoose.Schema.Types.ObjectId,
+    symbols: Object, // { "▲": 20, "●●●●": 86 }
+    icon_ids: [mongoose.Schema.Types.ObjectId]
   }),
-  'users'
+  'question_answer_icon_mapping'
 );
 
-// Health check endpoint
+const Answer = mongoose.model(
+  'Answer',
+  new mongoose.Schema({
+    symbol: String,
+    answer: String,
+    page: Number,
+    icon_id: mongoose.Schema.Types.ObjectId
+  }),
+  'answers'
+);
+
+// ✅ Health Check
 app.get('/', (req, res) => {
   res.json({ message: 'The Ladies Oracle API is running', status: 'OK' });
 });
 
-// Get all quotes
-app.get('/quotes', async (req, res) => {
-  try {
-    const quotes = await Quote.find();
-    res.json(quotes);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch quotes' });
-  }
-});
-
-// Add a new quote
-app.post('/quotes', async (req, res) => {
-  try {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ error: 'Text is required' });
-    
-    const quote = new Quote({ text });
-    await quote.save();
-    res.json(quote);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create quote' });
-  }
-});
-
-// Get all questions
+// ✅ Get all questions
 app.get('/questions', async (req, res) => {
   try {
     const questions = await Question.find();
@@ -93,7 +77,7 @@ app.get('/questions', async (req, res) => {
   }
 });
 
-// Get all icons
+// ✅ Get all icons
 app.get('/icons', async (req, res) => {
   try {
     const icons = await Icon.find();
@@ -103,106 +87,43 @@ app.get('/icons', async (req, res) => {
   }
 });
 
-// Signup endpoint
-app.post('/signup', async (req, res) => {
+// ✅ Combined endpoint: Get answer based on question + icon_id
+app.get('/oracle-answer', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
+    const { question, icon_id } = req.query;
+    if (!question || !icon_id) {
+      return res.status(400).json({ error: 'question and icon_id are required' });
     }
 
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(409).json({ error: 'User already exists' });
-    }
+    // Find mapping for this question
+    const mapping = await QuestionAnswerIconMapping.findOne({ question: parseInt(question) });
+    if (!mapping) return res.status(404).json({ error: `Mapping not found for question ${question}` });
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ email, password: hashed });
-    await user.save();
-    
-    res.json({ message: 'User created successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create user' });
-  }
-});
+    // Find index of icon_id
+    const index = mapping.icon_ids.findIndex(id => id.toString() === icon_id);
+    if (index === -1) return res.status(404).json({ error: `icon_id ${icon_id} not found` });
 
-// Login endpoint
-app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
-    }
+    // Get symbol and page
+    const symbolKeys = Object.keys(mapping.symbols);
+    if (index >= symbolKeys.length) return res.status(404).json({ error: 'Index out of range' });
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
+    const matchedSymbol = symbolKeys[index];
+    const page = mapping.symbols[matchedSymbol];
 
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    res.json({ message: 'Login successful' });
-  } catch (error) {
-    res.status(500).json({ error: 'Login failed' });
-  }
-});
-
-// Get user by email
-app.get('/user', async (req, res) => {
-  try {
-    const { email } = req.query;
-    if (!email) {
-      return res.status(400).json({ error: 'Email required' });
-    }
-    
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    res.json({ 
-      email: user.email, 
-      name: user.name || '',
-      avatarUri: user.avatarUri || ''
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
-
-// Update user profile
-app.post('/user/update', async (req, res) => {
-  try {
-    const { email, name, avatarUri } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: 'Email required' });
-    }
-
-    // Only update fields that are provided
-    const update = {};
-    if (name !== undefined) update.name = name;
-    if (avatarUri !== undefined) update.avatarUri = avatarUri;
-
-    const user = await User.findOneAndUpdate(
-      { email },
-      { $set: update },
-      { new: true }
-    );
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    // Fetch answer by page
+    const answerDoc = await Answer.findOne({ page });
+    if (!answerDoc) return res.status(404).json({ error: `No answer found for page ${page}` });
 
     res.json({
-      email: user.email,
-      name: user.name || '',
-      avatarUri: user.avatarUri || ''
+      question,
+      icon_id,
+      symbol: matchedSymbol,
+      page,
+      answer: answerDoc.answer
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update user' });
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch oracle answer' });
   }
 });
 
