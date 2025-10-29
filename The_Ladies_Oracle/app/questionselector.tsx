@@ -18,7 +18,6 @@ export default function QuestionSelector() {
     fetch(`${API_URL}/questions`)
       .then(res => res.json())
       .then(data => {
-        console.log('✅ Questions API Response:', data); // Debug entire response
         setQuestions(data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0)));
         setLoading(false);
       })
@@ -40,32 +39,23 @@ export default function QuestionSelector() {
           <Text style={globalStyles.selectBoxText}>Select a question</Text>
         </View>
         <View style={globalStyles.questionList}>
-          {questions.map(q => {
-            // ✅ Debug each question
-            console.log(`Question Item → _id: ${q._id}, number: ${q.number}, text: ${q.question}`);
-
-            return (
-              <TouchableOpacity
-                key={q._id}
-                style={globalStyles.questionRow}
-                onPress={() =>
-                  router.push({
-                    pathname: '/answerpage',
-                    params: { icon_id, question: q.number?.toString() }
-                  })
-                }
-                activeOpacity={0.7}
-              >
-                <Text style={globalStyles.questionNumber}>{q.number}</Text>
-                <Text style={globalStyles.questionText}>{q.question}</Text>
-
-                {/* ✅ Optional: Show debug info in UI */}
-                <Text style={{ fontSize: 12, color: '#888' }}>
-                  [ID: {q._id}]
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+          {questions.map(q => (
+            <TouchableOpacity
+              key={q._id}
+              style={globalStyles.questionRow}
+              onPress={() => {
+                console.log(`Selected Icon ID: ${icon_id}`); // ✅ Only log selected icon ID
+                router.push({
+                  pathname: '/answerpage',
+                  params: { icon_id, question: q.number?.toString() }
+                });
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={globalStyles.questionNumber}>{q.number}</Text>
+              <Text style={globalStyles.questionText}>{q.question}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>

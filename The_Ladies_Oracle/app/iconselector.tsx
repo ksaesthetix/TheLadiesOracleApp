@@ -19,7 +19,7 @@ export default function IconSelector() {
       .then(data => {
         // ✅ Log only the symbols
         data.forEach((iconDoc: IconDoc) => {
-          console.log(`🔹 Symbol: ${iconDoc.symbol}`);
+          console.log('🔹 IconDoc:', iconDoc);
         });
         setIcons(data);
         setLoading(false);

@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator } from 'react-native';
+  import { View, Text, ActivityIndicator } from 'react-native';
 import globalStyles from '../constants/styles';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -18,18 +18,13 @@ export default function AnswerPage() {
   useEffect(() => {
     const fetchAnswer = async () => {
       try {
-        // ✅ Correct URL (no HTML entity)
         const requestUrl = `${API_URL}/oracle-answer?question=${questionValue}&icon_id=${iconValue}`;
-        console.log('🔍 Request URL:', requestUrl);
-        console.log('Params → question:', questionValue, 'icon_id:', iconValue);
-
         const res = await fetch(requestUrl);
-        console.log('Response status:', res.status);
 
         if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
         const data = await res.json();
-        console.log('✅ Response data:', data);
+        console.log('✅ Final Answer:', data.answer); // Only final response logged
 
         setAnswer(data.answer || 'The Oracle is silent...');
       } catch (error) {
