@@ -24,8 +24,7 @@ export default function AnswerPage() {
         if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
         const data = await res.json();
-        console.log(`✅ Final Answer: Symbol:  ${data.icon_id} : ${data.symbol} Answer:  ${data.answer}`);
-
+        console.log(`✅ Final Answer: Icon ID: ${data.icon_id} | Icon Symbol: ${data.iconSymbol} | Answer Symbol: ${data.answerSymbol} | Answer: ${data.answer}`);
         setAnswer(data.answer || 'The Oracle is silent...');
       } catch (error) {
         console.error('❌ Error fetching answer:', error);

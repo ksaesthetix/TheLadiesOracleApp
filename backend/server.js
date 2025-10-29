@@ -47,7 +47,7 @@ const QuestionAnswerIconMapping = mongoose.model(
   new mongoose.Schema({
     question: Number,
     question_id: mongoose.Schema.Types.ObjectId,
-    symbols: [String], // ✅ Updated to array
+    symbols: [String], // still stored but not used for answer lookup
     icon_ids: [mongoose.Schema.Types.ObjectId]
   }),
   'question_answer_icon_mapping'
@@ -97,42 +97,21 @@ app.get('/oracle-answer', async (req, res) => {
       return res.status(400).json({ error: 'question and icon_id are required' });
     }
 
-    // Find mapping for this question
-    const mapping = await QuestionAnswerIconMapping.findOne({ question: parseInt(question) });
-    if (!mapping) return res.status(404).json({ error: `Mapping not found for question ${question}` });
-
-    // ✅ Validate symbols and icon_ids arrays
-    if (!Array.isArray(mapping.symbols) || mapping.symbols.length === 0) {
-      return res.status(404).json({ error: 'Symbols array is missing or empty for this question' });
-    }
-    if (!Array.isArray(mapping.icon_ids) || mapping.icon_ids.length === 0) {
-      return res.status(404).json({ error: 'Icon IDs array is missing or empty for this question' });
-    }
-
-    // ✅ Build map of icon_id -> symbol
-    const iconSymbolMap = {};
-    mapping.icon_ids.forEach((id, i) => {
-      iconSymbolMap[id.toString()] = mapping.symbols[i];
-    });
-
-    const symbol = iconSymbolMap[icon_id];
-    if (!symbol) {
-      return res.status(404).json({ error: `No symbol found for icon_id ${icon_id}` });
-    }
-
-    // ✅ Fetch actual icon symbol from icons collection
+    // ✅ Fetch icon document
     const iconDoc = await Icon.findById(icon_id);
     if (!iconDoc) return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
 
-    // ✅ Fetch answer by symbol
+    // ✅ Use icon's base symbol for answer lookup
+    const symbol = iconDoc.symbol;
+
+    // ✅ Fetch answer by base symbol
     const answerDoc = await Answer.findOne({ symbol });
     if (!answerDoc) return res.status(404).json({ error: `No answer found for symbol ${symbol}` });
 
     res.json({
       question,
       icon_id,
-      iconSymbol: iconDoc.symbol, // base symbol from icons collection
-      answerSymbol: symbol,       // symbol used for answer mapping
+      iconSymbol: symbol,
       page: answerDoc.page,
       answer: answerDoc.answer
     });
