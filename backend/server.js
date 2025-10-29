@@ -101,24 +101,28 @@ app.get('/oracle-answer', async (req, res) => {
     const mapping = await QuestionAnswerIconMapping.findOne({ question: parseInt(question) });
     if (!mapping) return res.status(404).json({ error: `Mapping not found for question ${question}` });
 
-    // Find index of icon_id
-    const index = mapping.icon_ids.findIndex(id => id.toString() === icon_id);
-    if (index === -1) return res.status(404).json({ error: `icon_id ${icon_id} not found` });
-
-    // ✅ Validate symbols array
+    // ✅ Validate symbols and icon_ids arrays
     if (!Array.isArray(mapping.symbols) || mapping.symbols.length === 0) {
       return res.status(404).json({ error: 'Symbols array is missing or empty for this question' });
     }
-    if (index >= mapping.symbols.length) {
-      return res.status(404).json({ error: `Index ${index} out of range for symbols array` });
+    if (!Array.isArray(mapping.icon_ids) || mapping.icon_ids.length === 0) {
+      return res.status(404).json({ error: 'Icon IDs array is missing or empty for this question' });
+    }
+
+    // ✅ Build map of icon_id -> symbol
+    const iconSymbolMap = {};
+    mapping.icon_ids.forEach((id, i) => {
+      iconSymbolMap[id.toString()] = mapping.symbols[i];
+    });
+
+    const symbol = iconSymbolMap[icon_id];
+    if (!symbol) {
+      return res.status(404).json({ error: `No symbol found for icon_id ${icon_id}` });
     }
 
     // ✅ Fetch actual icon symbol from icons collection
     const iconDoc = await Icon.findById(icon_id);
     if (!iconDoc) return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
-
-    // ✅ Get symbol from array
-    const symbol = mapping.symbols[index];
 
     // ✅ Fetch answer by symbol
     const answerDoc = await Answer.findOne({ symbol });
@@ -128,7 +132,7 @@ app.get('/oracle-answer', async (req, res) => {
       question,
       icon_id,
       iconSymbol: iconDoc.symbol, // base symbol from icons collection
-      answerSymbol: symbol,
+      answerSymbol: symbol,       // symbol used for answer mapping
       page: answerDoc.page,
       answer: answerDoc.answer
     });
