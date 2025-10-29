@@ -45,6 +45,7 @@ export default function QuestionSelector() {
               style={globalStyles.questionRow}
               onPress={() => {
                 console.log(`Selected Icon ID: ${icon_id}`); // ✅ Only log selected icon ID
+                console.log(`Selected Question ID: ${q._id}`);
                 router.push({
                   pathname: '/answerpage',
                   params: { icon_id, question: q.number?.toString() }

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 const API_URL = 'https://theladiesoracleapp.onrender.com';
 
 export default function AnswerPage() {
-  const { icon_id, question } = useLocalSearchParams();
+  const { icon_id, question} = useLocalSearchParams();
 
   // Normalize params
   const iconValue = Array.isArray(icon_id) ? icon_id[0] : icon_id;
@@ -24,7 +24,7 @@ export default function AnswerPage() {
         if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
 
         const data = await res.json();
-        console.log('✅ Final Answer:', data.answer); // Only final response logged
+        console.log(`✅ Final Answer: Symbol:  ${data.icon_id} : ${data.symbol} Answer:  ${data.answer}`);
 
         setAnswer(data.answer || 'The Oracle is silent...');
       } catch (error) {

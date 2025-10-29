@@ -21,9 +21,6 @@ export default function IconSelector() {
     fetch(`${API_URL}/icons`)
       .then(res => res.json())
       .then(data => {
-        data.forEach((iconDoc: IconDoc) => {
-          console.log('🔹 IconDoc:', iconDoc);
-        });
         setIcons(data);
         setLoading(false);
       })
@@ -46,12 +43,14 @@ export default function IconSelector() {
           <TouchableOpacity
             key={iconDoc._id}
             style={globalStyles.iconCircle}
-            onPress={() =>
+            onPress={() => {
+              console.log(`Selected Icon ID: ${iconDoc._id}`);
+              console.log(`Selected Symbol: ${iconDoc.symbol}`);
               router.push({
                 pathname: '/questionselector',
                 params: { icon_id: iconDoc._id },
-              })
-            }
+              });
+            }}
             activeOpacity={0.7}
           >
             <Text style={globalStyles.iconSymbol}>{iconDoc.symbol}</Text>

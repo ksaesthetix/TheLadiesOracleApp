@@ -26,7 +26,6 @@ app.use(cors({
 app.use(express.json());
 
 // ✅ MongoDB Connection
-// MongoDB connection
 const MONGO_URI = 'mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle';
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB connected successfully!'))
@@ -48,7 +47,7 @@ const QuestionAnswerIconMapping = mongoose.model(
   new mongoose.Schema({
     question: Number,
     question_id: mongoose.Schema.Types.ObjectId,
-    symbols: Object, // { "▲": 20, "●●●●": 86 }
+    symbols: [String], // ✅ Updated to array
     icon_ids: [mongoose.Schema.Types.ObjectId]
   }),
   'question_answer_icon_mapping'
@@ -110,20 +109,18 @@ app.get('/oracle-answer', async (req, res) => {
     const iconDoc = await Icon.findById(icon_id);
     if (!iconDoc) return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
 
-    // Get page from mapping
-    const symbolKeys = Object.keys(mapping.symbols);
-    if (index >= symbolKeys.length) return res.status(404).json({ error: 'Index out of range' });
-    const page = mapping.symbols[symbolKeys[index]];
+    // ✅ Get symbol from array
+    const symbol = mapping.symbols[index];
 
-    // Fetch answer by page
-    const answerDoc = await Answer.findOne({ page });
-    if (!answerDoc) return res.status(404).json({ error: `No answer found for page ${page}` });
+    // ✅ Fetch answer by symbol
+    const answerDoc = await Answer.findOne({ symbol });
+    if (!answerDoc) return res.status(404).json({ error: `No answer found for symbol ${symbol}` });
 
     res.json({
       question,
       icon_id,
-      symbol: iconDoc.symbol, // ✅ Use actual symbol from icons collection
-      page,
+      symbol,
+      page: answerDoc.page,
       answer: answerDoc.answer
     });
   } catch (error) {
