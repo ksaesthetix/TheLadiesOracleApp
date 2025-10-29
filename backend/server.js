@@ -6,30 +6,32 @@ const bcrypt = require('bcryptjs');
 
 const app = express();
 
+// ✅ Allowed Origins
 const allowedOrigins = [
   'https://congenial-tribble-4rqj6wr7vwv27wqj-3000.app.github.dev',
   'https://theladiesoracleapp.onrender.com',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'exp://', // ✅ Add Expo dev origin
+  'http://localhost:19000' // ✅ Add Expo local dev
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Allow non-browser clients
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   }
 }));
 
 app.use(express.json());
 
-// MongoDB connection
-const MONGO_URI = 'mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle';
-
+// ✅ MongoDB Connection
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/TheLadiesOracle';
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('✅ MongoDB connected successfully!'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Models
+// ✅ Models
 const Quote = mongoose.model('Quote', { text: String });
 const Question = mongoose.model('Question', new mongoose.Schema({}, { strict: false }), 'questions');
 const Icon = mongoose.model('Icon', new mongoose.Schema({}, { strict: false }), 'icons');
@@ -87,7 +89,7 @@ app.get('/icons', async (req, res) => {
   }
 });
 
-// ✅ Combined endpoint: Get answer based on question + icon_id
+// ✅ Get answer based on question + icon_id
 app.get('/oracle-answer', async (req, res) => {
   try {
     const { question, icon_id } = req.query;
@@ -103,12 +105,14 @@ app.get('/oracle-answer', async (req, res) => {
     const index = mapping.icon_ids.findIndex(id => id.toString() === icon_id);
     if (index === -1) return res.status(404).json({ error: `icon_id ${icon_id} not found` });
 
-    // Get symbol and page
+    // ✅ Fetch actual icon symbol from icons collection
+    const iconDoc = await Icon.findById(icon_id);
+    if (!iconDoc) return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
+
+    // Get page from mapping
     const symbolKeys = Object.keys(mapping.symbols);
     if (index >= symbolKeys.length) return res.status(404).json({ error: 'Index out of range' });
-
-    const matchedSymbol = symbolKeys[index];
-    const page = mapping.symbols[matchedSymbol];
+    const page = mapping.symbols[symbolKeys[index]];
 
     // Fetch answer by page
     const answerDoc = await Answer.findOne({ page });
@@ -117,7 +121,7 @@ app.get('/oracle-answer', async (req, res) => {
     res.json({
       question,
       icon_id,
-      symbol: matchedSymbol,
+      symbol: iconDoc.symbol, // ✅ Use actual symbol from icons collection
       page,
       answer: answerDoc.answer
     });
@@ -127,6 +131,7 @@ app.get('/oracle-answer', async (req, res) => {
   }
 });
 
+// ✅ Start Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 The Ladies Oracle API running on port ${PORT}`);

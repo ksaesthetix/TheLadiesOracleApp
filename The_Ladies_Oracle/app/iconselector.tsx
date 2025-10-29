@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import globalStyles from '../constants/styles';
 import { useRouter } from 'expo-router';
+import globalStyles from '../constants/styles';
 
 export const options = { headerShown: false };
+
 const API_URL = 'https://theladiesoracleapp.onrender.com';
 
-type IconDoc = { _id: string; symbol: string };
+type IconDoc = {
+  _id: string;
+  symbol: string;
+};
 
 export default function IconSelector() {
   const router = useRouter();
@@ -17,7 +21,6 @@ export default function IconSelector() {
     fetch(`${API_URL}/icons`)
       .then(res => res.json())
       .then(data => {
-        // ✅ Log only the symbols
         data.forEach((iconDoc: IconDoc) => {
           console.log('🔹 IconDoc:', iconDoc);
         });
@@ -31,7 +34,7 @@ export default function IconSelector() {
   }, []);
 
   if (loading) {
-    return <ActivityIndicator style={{ flex: 1 }} />;
+    return <ActivityIndicator style={{ flex: 1 }} size="large" color="#000" />;
   }
 
   return (
@@ -46,7 +49,7 @@ export default function IconSelector() {
             onPress={() =>
               router.push({
                 pathname: '/questionselector',
-                params: { icon_id: iconDoc._id }
+                params: { icon_id: iconDoc._id },
               })
             }
             activeOpacity={0.7}

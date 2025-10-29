@@ -1,4 +1,4 @@
-  import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import globalStyles from '../constants/styles';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
