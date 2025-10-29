@@ -47,8 +47,9 @@ const QuestionAnswerIconMapping = mongoose.model(
   new mongoose.Schema({
     question: Number,
     question_id: mongoose.Schema.Types.ObjectId,
-    symbols: [String], // still stored but not used for answer lookup
-    icon_ids: [mongoose.Schema.Types.ObjectId]
+    symbols: [String],
+    icon_ids: [mongoose.Schema.Types.ObjectId],
+    page: [Number] // ✅ Array of pages
   }),
   'question_answer_icon_mapping'
 );
@@ -97,22 +98,31 @@ app.get('/oracle-answer', async (req, res) => {
       return res.status(400).json({ error: 'question and icon_id are required' });
     }
 
+    // ✅ Find mapping for this question
+    const mapping = await QuestionAnswerIconMapping.findOne({ question: parseInt(question) });
+    if (!mapping) return res.status(404).json({ error: `Mapping not found for question ${question}` });
+
+    // ✅ Find index of icon_id
+    const index = mapping.icon_ids.findIndex(id => id.toString() === icon_id);
+    if (index === -1) return res.status(404).json({ error: `icon_id ${icon_id} not found` });
+
     // ✅ Fetch icon document
     const iconDoc = await Icon.findById(icon_id);
     if (!iconDoc) return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
 
-    // ✅ Use icon's base symbol for answer lookup
-    const symbol = iconDoc.symbol;
+    // ✅ Get correct page from mapping
+    const page = mapping.page[index];
+    if (!page) return res.status(404).json({ error: `No page found for index ${index}` });
 
-    // ✅ Fetch answer by base symbol
-    const answerDoc = await Answer.findOne({ symbol });
-    if (!answerDoc) return res.status(404).json({ error: `No answer found for symbol ${symbol}` });
+    // ✅ Fetch answer by page
+    const answerDoc = await Answer.findOne({ page });
+    if (!answerDoc) return res.status(404).json({ error: `No answer found for page ${page}` });
 
     res.json({
       question,
       icon_id,
-      iconSymbol: symbol,
-      page: answerDoc.page,
+      iconSymbol: iconDoc.symbol,
+      page,
       answer: answerDoc.answer
     });
   } catch (error) {
