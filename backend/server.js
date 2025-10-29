@@ -105,6 +105,14 @@ app.get('/oracle-answer', async (req, res) => {
     const index = mapping.icon_ids.findIndex(id => id.toString() === icon_id);
     if (index === -1) return res.status(404).json({ error: `icon_id ${icon_id} not found` });
 
+    // ✅ Validate symbols array
+    if (!Array.isArray(mapping.symbols) || mapping.symbols.length === 0) {
+      return res.status(404).json({ error: 'Symbols array is missing or empty for this question' });
+    }
+    if (index >= mapping.symbols.length) {
+      return res.status(404).json({ error: `Index ${index} out of range for symbols array` });
+    }
+
     // ✅ Fetch actual icon symbol from icons collection
     const iconDoc = await Icon.findById(icon_id);
     if (!iconDoc) return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
