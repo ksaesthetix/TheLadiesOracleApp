@@ -127,7 +127,8 @@ app.get('/oracle-answer', async (req, res) => {
     res.json({
       question,
       icon_id,
-      symbol,
+      iconSymbol: iconDoc.symbol, // base symbol from icons collection
+      answerSymbol: symbol,
       page: answerDoc.page,
       answer: answerDoc.answer
     });
