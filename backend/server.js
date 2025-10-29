@@ -27,7 +27,7 @@ app.use(express.json());
 
 // ✅ MongoDB Connection
 // MongoDB connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle';
+const MONGO_URI = 'mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle';
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB connected successfully!'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
