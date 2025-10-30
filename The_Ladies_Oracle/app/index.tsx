@@ -48,7 +48,7 @@ export default function Index() {
         {/* Scrollable content */}
         <ScrollView contentContainerStyle={globalStyles.scrollContent}>
           <View style={globalStyles.buttonContainer}>
-            <Link href="./iconselector" asChild>
+            <Link href="./questionselector" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Ask The Oracle</Text>
               </TouchableOpacity>

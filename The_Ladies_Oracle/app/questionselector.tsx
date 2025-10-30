@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import globalStyles from '../constants/styles';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 
-export const options = { headerShown: false };
 const API_URL = 'https://theladiesoracleapp.onrender.com';
 
 type Question = { _id: string; number?: number; question?: string };
 
+export const options = { headerShown: false };
+
 export default function QuestionSelector() {
   const router = useRouter();
-  const { icon_id } = useLocalSearchParams();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,8 +18,7 @@ export default function QuestionSelector() {
     fetch(`${API_URL}/questions`)
       .then(res => res.json())
       .then(data => {
-        setQuestions(data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0)));
-        setLoading(false);
+      setQuestions(data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0)));        setLoading(false);
       })
       .catch(err => {
         console.error('❌ Fetch error:', err);
@@ -44,11 +43,10 @@ export default function QuestionSelector() {
               key={q._id}
               style={globalStyles.questionRow}
               onPress={() => {
-                console.log(`Selected Icon ID: ${icon_id}`); // ✅ Only log selected icon ID
-                console.log(`Selected Question ID: ${q._id}`);
+                console.log(`✅ Selected Question Number: ${q.number}`);
                 router.push({
-                  pathname: '/answerpage',
-                  params: { icon_id, question: q.number?.toString() }
+                  pathname: '/iconselector',
+                  params: { question: q.number?.toString() }
                 });
               }}
               activeOpacity={0.7}
