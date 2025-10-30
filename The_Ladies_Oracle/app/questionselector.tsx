@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
-import globalStyles from '../constants/styles';
-import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import globalStyles from "../constants/styles";
+import { useRouter } from "expo-router";
 
-const API_URL = 'https://theladiesoracleapp.onrender.com';
+const API_URL = "https://theladiesoracleapp.onrender.com";
 
 type Question = { _id: string; number?: number; question?: string };
 
@@ -16,12 +23,20 @@ export default function QuestionSelector() {
 
   useEffect(() => {
     fetch(`${API_URL}/questions`)
-      .then(res => res.json())
-      .then(data => {
-      setQuestions(data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0)));        setLoading(false);
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const text = await res.text();
+        if (!text) throw new Error("Empty response from /questions");
+        const data = JSON.parse(text);
+        setQuestions(
+          data.sort(
+            (a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0)
+          )
+        );
+        setLoading(false);
       })
-      .catch(err => {
-        console.error('❌ Fetch error:', err);
+      .catch((err) => {
+        console.error("❌ Fetch error:", err);
         setLoading(false);
       });
   }, []);
@@ -38,15 +53,16 @@ export default function QuestionSelector() {
           <Text style={globalStyles.selectBoxText}>Select a question</Text>
         </View>
         <View style={globalStyles.questionList}>
-          {questions.map(q => (
+          {questions.map((q) => (
             <TouchableOpacity
               key={q._id}
               style={globalStyles.questionRow}
               onPress={() => {
                 console.log(`✅ Selected Question Number: ${q.number}`);
+                console.log(`✅ Selected Question Text: ${q.question}`);
                 router.push({
-                  pathname: '/iconselector',
-                  params: { question: q.number?.toString() }
+                  pathname: "/iconselector",
+                  params: { question: q.number?.toString() },
                 });
               }}
               activeOpacity={0.7}
