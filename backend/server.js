@@ -150,11 +150,11 @@ app.get("/oracle-answer", async (req, res) => {
         .json({ error: `No page found for symbol index ${symbolIndex}` });
 
     // ✅ Fetch answer by page
-    const answerDoc = await Answer.findOne({ page });
+    const answerDoc = await Answer.findOne({ page, icon_id });
     if (!answerDoc)
       return res
         .status(404)
-        .json({ error: `No answer found for page ${page}` });
+        .json({ error: `No answer found for page ${page} and icon_id ${icon_id}`});
 
     res.json({
       question,

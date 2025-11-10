@@ -3,3 +3,5 @@ npx expo start --tunnel
 start up backend 
 
 node server.js
+
+$ mongosh "mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle"
