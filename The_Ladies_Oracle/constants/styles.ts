@@ -46,7 +46,7 @@ export const COLORS = {
 const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Constants.statusBarHeight,
+    paddingTop: 8, //Constants.statusBarHeight,
     backgroundColor: COLORS.backgroundLight,
   },
   pageText: {
@@ -225,6 +225,57 @@ const globalStyles = StyleSheet.create({
     fontFamily: 'serif',
     letterSpacing: 0.5,
   },
+  questionfixedHeader: {
+    backgroundColor: COLORS.background, // matches COLORS.backgroundLight
+    paddingTop: 4,
+    paddingBottom: 4,
+    zIndex: 10,
+  },
+  tabContainer: {
+    backgroundColor: '#fdfaf6',
+    paddingTop: 12,
+    paddingBottom: 4,
+    paddingHorizontal: 16, // ⬅️ aligns with question list
+  },
+
+  tabWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    rowGap: 10,            // ⬅️ even vertical spacing
+    columnGap: 10,         // ⬅️ even horizontal spacing
+  },
+
+  tab: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 18,
+    minHeight: 38,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    backgroundColor: '#f2efe9',
+    borderWidth: 1,
+    borderColor: '#e2dccf',
+  },
+
+  activeTab: {
+    backgroundColor: '#efe6d8',
+    borderColor: '#c9b8a3',
+  },
+
+  tabText: {
+    fontSize: 14,
+    lineHeight: 18,
+    color: '#5a4a3a',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+
+  activeTabText: {
+    fontWeight: '700',
+    color: '#3e2f22',
+  },
+
   questionList: {
     width: '100%',
     alignItems: 'center',
