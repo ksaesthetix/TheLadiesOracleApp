@@ -25,7 +25,6 @@ app.use(
     },
   })
 );
-
 app.use(express.json());
 
 // ✅ MongoDB Connection
@@ -168,6 +167,34 @@ app.get("/oracle-answer", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch oracle answer" });
   }
 });
+
+// 🌍 Get Geo Details (Latitude & Longitude from location)
+app.post("/astrology/geo-details", async (req, res) => {
+  try {
+    const { location } = req.body;
+
+    if (!location) {
+      return res.status(400).json({ error: "location is required" });
+    }
+
+    const response = await fetch("https://json.freeastrologyapi.com/geo-details", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": ASTROLOGY_API_KEY,
+      },
+      body: JSON.stringify({ location }),
+    });
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error("Geo details error:", error);
+    res.status(500).json({ error: "Failed to fetch geo details" });
+  }
+});
+
+
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
