@@ -169,7 +169,7 @@ app.get("/oracle-answer", async (req, res) => {
 });
 
 // 🌍 Get Geo Details (Latitude & Longitude from location)
-
+const ASTROLOGY_API_KEY = process.env.ASTROLOGY_API;
 app.post("/astrology/geo-details", async (req, res) => {
   try {
     const { location } = req.body;
@@ -182,7 +182,7 @@ app.post("/astrology/geo-details", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ASTROLOGY_API,
+        "x-api-key": ASTROLOGY_API_KEY,
       },
       body: JSON.stringify({ location }),
     });
