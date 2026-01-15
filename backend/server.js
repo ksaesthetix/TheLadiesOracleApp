@@ -169,6 +169,7 @@ app.get("/oracle-answer", async (req, res) => {
 });
 
 // 🌍 Get Geo Details (Latitude & Longitude from location)
+
 app.post("/astrology/geo-details", async (req, res) => {
   try {
     const { location } = req.body;
@@ -181,7 +182,7 @@ app.post("/astrology/geo-details", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": ASTROLOGY_API_KEY,
+        "x-api-key": ASTROLOGY_API,
       },
       body: JSON.stringify({ location }),
     });
@@ -193,8 +194,6 @@ app.post("/astrology/geo-details", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch geo details" });
   }
 });
-
-
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
