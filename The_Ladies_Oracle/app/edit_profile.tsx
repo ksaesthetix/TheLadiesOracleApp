@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     View, 
@@ -13,33 +12,30 @@ import {
     Platform
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-// Import the Firestore type for explicit casting
-import { getFirestore, doc, getDoc, updateDoc, Firestore } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import globalStyles, { COLORS } from '../constants/styles';
 import { useAuth } from './contexts/AuthContext';
+import { db } from '../firebaseConfig'; // Import the shared db instance
 
 const EditProfileScreen = () => {
   const { user } = useAuth();
   const router = useRouter();
 
   const [name, setName] = useState('');
-  const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
+  const [profilePicUri, setProfilePicUri] = useState<string | null>(null); 
   const [loading, setLoading] = useState(true); 
   const [saving, setSaving] = useState(false); 
-
-  // Get the firestore instance
-  const firestore = getFirestore();
 
   const fetchUserData = useCallback(async () => {
     if (!user) return;
 
     setLoading(true);
     try {
-      // Explicitly cast the 'firestore' instance to the Firestore type
-      const userDocRef = doc(firestore as Firestore, 'users', user.uid);
+      // Use the imported db instance directly
+      const userDocRef = doc(db, 'users', user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
@@ -56,7 +52,7 @@ const EditProfileScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, firestore]);
+  }, [user]);
 
   useEffect(() => {
     fetchUserData();
@@ -102,7 +98,7 @@ const EditProfileScreen = () => {
         newPhotoURL = await getDownloadURL(storageRef);
       }
 
-      const userDocRef = doc(firestore as Firestore, 'users', user.uid);
+      const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
         name: name,
         photoURL: newPhotoURL,
