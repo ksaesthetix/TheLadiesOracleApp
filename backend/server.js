@@ -55,7 +55,7 @@ app.get("/", (req, res) => {
 app.get("/questions", async (req, res) => {
   try {
     const questionsSnapshot = await db.collection("questions").get();
-    const questions = questionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const questions = questionsSnapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
     res.json(questions);
   } catch (error) {
     console.error("Failed to fetch questions:", error);
@@ -67,7 +67,7 @@ app.get("/questions", async (req, res) => {
 app.get("/icons", async (req, res) => {
   try {
     const iconsSnapshot = await db.collection("icons").get();
-    const icons = iconsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const icons = iconsSnapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
     res.json(icons);
   } catch (error) {
     console.error("Failed to fetch icons:", error);
