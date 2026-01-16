@@ -1,0 +1,578 @@
+[
+  {
+    "_id": "68764b59476536a85a573a4e",
+    "number": 91,
+    "question": "What do people think of me?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a5739fd",
+    "number": 10,
+    "question": "Should I reply to his first message?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a05",
+    "number": 18,
+    "question": "Does the one I’m thinking about love me?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a10",
+    "number": 29,
+    "question": "Will my secret be revealed?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a14",
+    "number": 33,
+    "question": "Will I lose my virginity before marriage?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a17",
+    "number": 36,
+    "question": "Should I go ahead with my plan?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a1f",
+    "number": 44,
+    "question": "Do I have any rivals?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a21",
+    "number": 46,
+    "question": "Will I be happy in my companies?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a22",
+    "number": 47,
+    "question": "How do I stop others from finding out my secret?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a30",
+    "number": 61,
+    "question": "Will I travel far and often?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a37",
+    "number": 68,
+    "question": "Should I confess everything?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a3f",
+    "number": 76,
+    "question": "Will I receive an unexpected inheritance?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a44",
+    "number": 81,
+    "question": "Will I be loved for a long time?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a4a",
+    "number": 87,
+    "question": "Will I die unmarried, married, or widowed?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a4c",
+    "number": 89,
+    "question": "Will my current wish come true?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a50",
+    "number": 93,
+    "question": "Will I be happy when I’m old?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a53",
+    "number": 96,
+    "question": "Will my wish come true at night or during the day?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a55",
+    "number": 98,
+    "question": "Should I give up worldly pleasures?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a00",
+    "number": 13,
+    "question": "Will my husband be young?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a1b",
+    "number": 40,
+    "question": "Will I marry a wealthy man?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a1d",
+    "number": 42,
+    "question": "Will my husband be good-looking or not?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a3d",
+    "number": 74,
+    "question": "What is the person I’m thinking of doing now?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a51",
+    "number": 94,
+    "question": "When will I stop loving?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a5739fa",
+    "number": 7,
+    "question": "Do people still see me as a child?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a0b",
+    "number": 24,
+    "question": "Is the man I love faithful to me?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a0e",
+    "number": 27,
+    "question": "Will I have children?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a15",
+    "number": 34,
+    "question": "Will I marry the man I’m currently thinking about?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a16",
+    "number": 35,
+    "question": "Will I stay healthy throughout my life?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a1c",
+    "number": 41,
+    "question": "What kind of person will my husband be?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a24",
+    "number": 49,
+    "question": "How long will our disagreement last?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a25",
+    "number": 50,
+    "question": "Will making peace benefit me?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a26",
+    "number": 51,
+    "question": "Does my husband love me as much as he did before we married?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a2f",
+    "number": 60,
+    "question": "Will I receive the gifts I’m expecting?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a3a",
+    "number": 71,
+    "question": "Should I challenge my husband’s plans?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a3e",
+    "number": 75,
+    "question": "Is anyone jealous of me?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a48",
+    "number": 85,
+    "question": "Should I accept the offers being made?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a49",
+    "number": 86,
+    "question": "What will happen if I say yes to their request?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a4f",
+    "number": 92,
+    "question": "Will I stay single for long?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a5739f8",
+    "number": 5,
+    "question": "Will someone start courting me soon?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a02",
+    "number": 15,
+    "question": "How many lovers will I have?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a09",
+    "number": 22,
+    "question": "Will I have many adventures?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a29",
+    "number": 54,
+    "question": "Will the person I’m thinking of come back soon?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a34",
+    "number": 65,
+    "question": "Will they keep the promises they made?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a4b",
+    "number": 88,
+    "question": "What job will my husband have?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a5739f9",
+    "number": 6,
+    "question": "Does the man I like think of me too?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a19",
+    "number": 38,
+    "question": "Will I be happy in love?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a2d",
+    "number": 58,
+    "question": "Will my current affair or concern last long?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a40",
+    "number": 77,
+    "question": "Should I be worried about meeting privately?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a42",
+    "number": 79,
+    "question": "Should I take the advice I was given?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a28",
+    "number": 53,
+    "question": "Has my husband loved anyone else as much as me?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a46",
+    "number": 83,
+    "question": "Should I live in the country or the city?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a2e",
+    "number": 59,
+    "question": "Which of the two people I’m thinking of should I choose?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a33",
+    "number": 64,
+    "question": "Will my weakness cause the thing I fear?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a39",
+    "number": 70,
+    "question": "Does my husband believe I’m truly virtuous?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a54",
+    "number": 97,
+    "question": "Will what I fear happen at night or during the day?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a5739fb",
+    "number": 8,
+    "question": "Does he love me as deeply as I love him?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a01",
+    "number": 14,
+    "question": "How many husbands will I have?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a03",
+    "number": 16,
+    "question": "What does the person I love really think of me?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a06",
+    "number": 19,
+    "question": "Does he know that I love him?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a0a",
+    "number": 23,
+    "question": "Will my husband make me happy?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a0c",
+    "number": 25,
+    "question": "Will my husband suspect me of something?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a0d",
+    "number": 26,
+    "question": "Should I end it or give in?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a18",
+    "number": 37,
+    "question": "Am I paid fairly?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a20",
+    "number": 45,
+    "question": "Are the compliments I receive genuine?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a23",
+    "number": 48,
+    "question": "Will I marry someone I already know?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a2a",
+    "number": 55,
+    "question": "Is my husband honest with me?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a2b",
+    "number": 56,
+    "question": "Will this sadness I feel last much longer?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a38",
+    "number": 69,
+    "question": "Should I make the first move to make peace?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a3b",
+    "number": 72,
+    "question": "Am I in danger or distress?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a41",
+    "number": 78,
+    "question": "Will my reputation remain good?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a52",
+    "number": 95,
+    "question": "Do I have enemies?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a04",
+    "number": 17,
+    "question": "Should I believe his sweet words?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a5739fc",
+    "number": 9,
+    "question": "What can I do to make him happy?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a5739fe",
+    "number": 11,
+    "question": "What will happen if I go to the meeting?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a5739ff",
+    "number": 12,
+    "question": "Should I give in to what he’s asking?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a07",
+    "number": 20,
+    "question": "What can I do to make him love me back?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a08",
+    "number": 21,
+    "question": "Will I marry at a young age?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a0f",
+    "number": 28,
+    "question": "Will I come into money?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a12",
+    "number": 31,
+    "question": "What do people think of my intelligence?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a13",
+    "number": 32,
+    "question": "If my mistake is found out, will I be forgiven?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a1a",
+    "number": 39,
+    "question": "Will my happiness last long?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a1e",
+    "number": 43,
+    "question": "Will my husband be intelligent?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a2c",
+    "number": 57,
+    "question": "Will I soon get the news I’m waiting for?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a31",
+    "number": 62,
+    "question": "Will the relationship I’m in last?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a32",
+    "number": 63,
+    "question": "Will my social status change soon?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a35",
+    "number": 66,
+    "question": "Should I forgive them?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a36",
+    "number": 67,
+    "question": "Is the apology sincere?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a3c",
+    "number": 73,
+    "question": "Will I lose any money?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a45",
+    "number": 82,
+    "question": "Will I have a calm or stressful life?",
+    "category": "Life Path"
+  },
+  {
+    "_id": "68764b59476536a85a573a47",
+    "number": 84,
+    "question": "Is there any truth in my fear?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a4d",
+    "number": 90,
+    "question": "Are they thinking about me there?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a56",
+    "number": 99,
+    "question": "Will they regret losing me?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a57",
+    "number": 100,
+    "question": "Will I experience more sorrow than joy in the future?",
+    "category": "Emotions & Inner Life"
+  },
+  {
+    "_id": "68764b59476536a85a573a11",
+    "number": 30,
+    "question": "Do people think I'm attractive?",
+    "category": "Self & Reputation"
+  },
+  {
+    "_id": "68764b59476536a85a573a27",
+    "number": 52,
+    "question": "Am I the first woman my husband has ever loved?",
+    "category": "Love & Relationships"
+  },
+  {
+    "_id": "68764b59476536a85a573a43",
+    "number": 80,
+    "question": "How will my plans turn out?",
+    "category": "Life Path"
+  }
+]

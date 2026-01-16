@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-
+const admin = require("firebase-admin");
+const { getFirestore } = require("firebase-admin/firestore");
 const app = express();
 
 // ✅ Allowed Origins
@@ -27,59 +27,24 @@ app.use(
 );
 app.use(express.json());
 
-// ✅ MongoDB Connection
-const MONGO_URI =
-  "mongodb+srv://Admin_theladiesoracle:MQA64yYiSn8PCpTT@theladiesoracle.yfjgelf.mongodb.net/TheLadiesOracle?retryWrites=true&w=majority&appName=TheLadiesOracle";
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected successfully!"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+// Firebase Admin Details
+// Make sure you have the firebase-admin-key.json file in the backend directory
+const serviceAccount = require("./firebase-admin-key.json"); 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+const db = getFirestore(admin.app(), "default");
 
-// ✅ Models
-const Quote = mongoose.model("Quote", { text: String });
-const Question = mongoose.model(
-  "Question",
-  new mongoose.Schema({}, { strict: false }),
-  "questions"
-);
-const Icon = mongoose.model(
-  "Icon",
-  new mongoose.Schema({}, { strict: false }),
-  "icons"
-);
-const User = mongoose.model(
-  "User",
-  new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    name: String,
-    avatarUri: String,
-  }),
-  "users"
-);
+// Firestore connection check
+(async () => {
+    try {
+        await db.collection("answers").doc("ping").set({ ok: true });
+        console.log("✅ Firestore connection OK to database: default");
+    } catch (e) {
+        console.error("❌ Firestore connection failed:", e);
+    }
+})();
 
-const QuestionAnswerIconMapping = mongoose.model(
-  "QuestionAnswerIconMapping",
-  new mongoose.Schema({
-    question: Number,
-    question_id: mongoose.Schema.Types.ObjectId,
-    symbols: [String],
-    icon_ids: [mongoose.Schema.Types.ObjectId],
-    page: [Number],
-  }),
-  "question_answer_icon_mapping"
-);
-
-const Answer = mongoose.model(
-  "Answer",
-  new mongoose.Schema({
-    symbol: String,
-    answer: String,
-    page: Number,
-    icon_id: mongoose.Schema.Types.ObjectId,
-  }),
-  "answers"
-);
 
 // ✅ Health Check
 app.get("/", (req, res) => {
@@ -89,9 +54,11 @@ app.get("/", (req, res) => {
 // ✅ Get all questions
 app.get("/questions", async (req, res) => {
   try {
-    const questions = await Question.find();
+    const questionsSnapshot = await db.collection("questions").get();
+    const questions = questionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     res.json(questions);
   } catch (error) {
+    console.error("Failed to fetch questions:", error);
     res.status(500).json({ error: "Failed to fetch questions" });
   }
 });
@@ -99,9 +66,11 @@ app.get("/questions", async (req, res) => {
 // ✅ Get all icons
 app.get("/icons", async (req, res) => {
   try {
-    const icons = await Icon.find();
+    const iconsSnapshot = await db.collection("icons").get();
+    const icons = iconsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     res.json(icons);
   } catch (error) {
+    console.error("Failed to fetch icons:", error);
     res.status(500).json({ error: "Failed to fetch icons" });
   }
 });
@@ -117,29 +86,28 @@ app.get("/oracle-answer", async (req, res) => {
     }
 
     // ✅ Find mapping for this question
-    const mapping = await QuestionAnswerIconMapping.findOne({
-      question: parseInt(question),
-    });
-    if (!mapping)
-      return res
-        .status(404)
-        .json({ error: `Mapping not found for question ${question}` });
+    const mappingSnapshot = await db.collection('question_answer_icon_mapping').where('question', '==', parseInt(question)).limit(1).get();
+    if (mappingSnapshot.empty) {
+        return res.status(404).json({ error: `Mapping not found for question ${question}` });
+    }
+    const mapping = mappingSnapshot.docs[0].data();
 
     // ✅ Fetch icon document
-    const iconDoc = await Icon.findById(icon_id);
-    if (!iconDoc)
-      return res
-        .status(404)
-        .json({ error: `Icon not found for id ${icon_id}` });
+    const iconDocRef = db.collection('icons').doc(icon_id);
+    const iconDoc = await iconDocRef.get();
+    if (!iconDoc.exists) {
+        return res.status(404).json({ error: `Icon not found for id ${icon_id}` });
+    }
+    const iconData = iconDoc.data();
 
     // ✅ Find index of symbol in mapping
     const symbolIndex = mapping.symbols.findIndex(
-      (s) => s === iconDoc.symbol
+      (s) => s === iconData.symbol
     );
     if (symbolIndex === -1)
       return res
         .status(404)
-        .json({ error: `Symbol ${iconDoc.symbol} not found in mapping` });
+        .json({ error: `Symbol ${iconData.symbol} not found in mapping` });
 
     // ✅ Get correct page from symbol index
     const page = mapping.page[symbolIndex];
@@ -148,17 +116,31 @@ app.get("/oracle-answer", async (req, res) => {
         .status(404)
         .json({ error: `No page found for symbol index ${symbolIndex}` });
 
-    // ✅ Fetch answer by page
-    const answerDoc = await Answer.findOne({ page, icon_id });
-    if (!answerDoc)
-      return res
-        .status(404)
-        .json({ error: `No answer found for page ${page} and icon_id ${icon_id}`});
+    // ✅ Fetch answer by page and icon_id. Assuming icon_id in 'answers' collection is a string reference to the document ID in 'icons' collection.
+    const answerSnapshot = await db.collection('answers').where('page', '==', page).where('icon_id', '==', icon_id).limit(1).get();
+
+    if (answerSnapshot.empty) {
+         // Fallback: search for answer by page and symbol, if direct icon_id match fails.
+         const answerBySymbolSnapshot = await db.collection('answers').where('page', '==', page).where('symbol', '==', iconData.symbol).limit(1).get();
+         if(answerBySymbolSnapshot.empty){
+            return res.status(404).json({ error: `No answer found for page ${page} and icon_id ${icon_id} or symbol ${iconData.symbol}`});
+         }
+         const answerDoc = answerBySymbolSnapshot.docs[0].data();
+          res.json({
+            question,
+            icon_id,
+            iconSymbol: iconData.symbol,
+            page,
+            answer: answerDoc.answer,
+          });
+         return;
+    }
+    const answerDoc = answerSnapshot.docs[0].data();
 
     res.json({
       question,
       icon_id,
-      iconSymbol: iconDoc.symbol,
+      iconSymbol: iconData.symbol,
       page,
       answer: answerDoc.answer,
     });
@@ -168,11 +150,13 @@ app.get("/oracle-answer", async (req, res) => {
   }
 });
 
+
 // 🌍 Get Geo Details (Latitude & Longitude from location)
 const ASTROLOGY_API_KEY = process.env.ASTROLOGY_API;
 app.post("/astrology/geo-details", async (req, res) => {
   try {
     const { location } = req.body;
+    console.log("Received request for geo details with location:", location);
 
     if (!location) {
       return res.status(400).json({ error: "location is required" });
@@ -188,6 +172,7 @@ app.post("/astrology/geo-details", async (req, res) => {
     });
 
     const data = await response.json();
+    console.log("Successfully fetched geo details:", data);
     res.json(data);
   } catch (error) {
     console.error("Geo details error:", error);
