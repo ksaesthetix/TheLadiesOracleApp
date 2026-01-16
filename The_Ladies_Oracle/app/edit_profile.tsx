@@ -1,76 +1,73 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
-import {View,ScrollView,Text,TextInput,Image,TouchableOpacity,StyleSheet,Alert,ActivityIndicator,Platform,} from 'react-native';
+import {
+    View, 
+    ScrollView, 
+    Text, 
+    TextInput, 
+    Image, 
+    TouchableOpacity, 
+    StyleSheet, 
+    Alert, 
+    ActivityIndicator, 
+    Platform
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
+// Import the Firestore type for explicit casting
+import { getFirestore, doc, getDoc, updateDoc, Firestore } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { updateProfile, User, onAuthStateChanged } from 'firebase/auth';
-import { router } from 'expo-router';
+import { updateProfile } from 'firebase/auth';
+import { useRouter } from 'expo-router';
 import globalStyles, { COLORS } from '../constants/styles';
-import { auth } from '../firebaseConfig';
+import { useAuth } from './contexts/AuthContext';
 
 const EditProfileScreen = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [initializing, setInitializing] = useState(true);
+  const { user } = useAuth();
+  const router = useRouter();
 
   const [name, setName] = useState('');
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true); 
+  const [saving, setSaving] = useState(false); 
 
+  // Get the firestore instance
   const firestore = getFirestore();
-  const storage = getStorage();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (userState) => {
-      setUser(userState);
-      if (initializing) {
-        setInitializing(false);
-      }
-    });
-    return unsubscribe; // Unsubscribe on unmount
-  }, [initializing]);
 
   const fetchUserData = useCallback(async () => {
-    // Use the latest user from auth, not the state, to avoid race conditions
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      setLoading(false);
-      return;
-    }
+    if (!user) return;
 
     setLoading(true);
     try {
-      const userDocRef = doc(firestore, 'users', currentUser.uid);
+      // Explicitly cast the 'firestore' instance to the Firestore type
+      const userDocRef = doc(firestore as Firestore, 'users', user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
-        setName(userData.name || '');
-        setProfilePicUri(userData.photoURL || null);
+        setName(userData.name || user.displayName || '');
+        setProfilePicUri(userData.photoURL || user.photoURL || null);
       } else {
-        setName(currentUser.displayName || '');
-        setProfilePicUri(currentUser.photoURL || null);
+        setName(user.displayName || '');
+        setProfilePicUri(user.photoURL || null);
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
-      Alert.alert("Error", "Failed to load your profile data.");
+      Alert.alert("Error", `Failed to load your profile data.`);
     } finally {
       setLoading(false);
     }
-  }, [firestore]);
+  }, [user, firestore]);
 
   useEffect(() => {
-    if (!initializing) {
-      fetchUserData();
-    }
-  }, [initializing, fetchUserData]);
+    fetchUserData();
+  }, [fetchUserData]);
 
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Permission Required', 'We need camera roll permissions to let you pick an image.');
+          Alert.alert('Permission Required', 'Camera roll permissions are needed to select an image.');
         }
       }
     })();
@@ -89,65 +86,45 @@ const EditProfileScreen = () => {
     }
   };
 
-  const uploadImage = async (uri: string, userId: string): Promise<string> => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const storageRef = ref(storage, `profile_pictures/${userId}.jpg`);
-    await uploadBytes(storageRef, blob);
-    return getDownloadURL(storageRef);
-  };
-
   const handleSave = async () => {
-    const userForSave = auth.currentUser;
-
-    if (!userForSave) {
-      Alert.alert("Not Logged In", "Your session may have expired. Please log in again.");
-      router.push('/login');
-      return;
-    }
+    if (!user) return;
 
     setSaving(true);
-    let photoURL = profilePicUri;
+    const storage = getStorage();
+    let newPhotoURL = profilePicUri;
 
     try {
       if (profilePicUri && !profilePicUri.startsWith('http')) {
-        photoURL = await uploadImage(profilePicUri, userForSave.uid);
+        const response = await fetch(profilePicUri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `profile_pictures/${user.uid}.jpg`);
+        await uploadBytes(storageRef, blob);
+        newPhotoURL = await getDownloadURL(storageRef);
       }
 
-      const userDocRef = doc(firestore, 'users', userForSave.uid);
+      const userDocRef = doc(firestore as Firestore, 'users', user.uid);
       await updateDoc(userDocRef, {
         name: name,
-        photoURL: photoURL,
+        photoURL: newPhotoURL,
       });
 
-      await updateProfile(userForSave, { displayName: name, photoURL: photoURL });
+      await updateProfile(user, { displayName: name, photoURL: newPhotoURL });
 
       Alert.alert("Success", "Your profile has been updated!");
       router.back();
     } catch (error) {
       console.error("Error updating profile:", error);
-      Alert.alert("Save Error", "There was a problem saving your profile.");
+      Alert.alert("Save Error", `There was a problem saving your profile.`);
     } finally {
       setSaving(false);
     }
   };
 
-  if (initializing || loading) {
+  if (loading) {
     return (
       <View style={[styles.container, styles.centered]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{ marginTop: 10 }}>Loading Profile...</Text>
-      </View>
-    );
-  }
-
-  if (!user) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text>You must be logged in to see this page.</Text>
-        <TouchableOpacity onPress={() => router.push('/login')} style={[globalStyles.button, { marginTop: 20 }]}>
-          <Text style={globalStyles.buttonText}>Go to Login</Text>
-        </TouchableOpacity>
+        <Text style={{ marginTop: 10 }}>Loading...</Text>
       </View>
     );
   }
@@ -195,7 +172,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   centered: {
-    flexGrow: 1, // Make sure it can take up the whole screen
     justifyContent: 'center',
     alignItems: 'center',
   },

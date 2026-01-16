@@ -1,25 +1,32 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import {
+  initializeFirestore,
+  getFirestore,
+  persistentLocalCache,
+} from "firebase/firestore";
+import { initializeAuth,  } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// TODO: Add your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAy1YGcj1z4fhicAAgaIOeytgy8BZYaW68",
   authDomain: "theladiesoracle.firebaseapp.com",
   projectId: "theladiesoracle",
-  storageBucket: "theladiesoracle.firebasestorage.app",
+  storageBucket: "theladiesoracle.appspot.com",
   messagingSenderId: "314108721004",
   appId: "1:314108721004:web:5f5cf4ecc7b7d627402549",
-  measurementId: "G-KWW16LMXCL"
+  measurementId: "G-KWW16LMXCL",
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// 🔥 IMPORTANT: connect to your *named* Firestore database "default"
-const db = getFirestore(app, "default");
-const auth = getAuth(app);
+// Initialize Firestore with React Native-compatible persistence
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache(),
+});
+
+// Initialize Auth with persistence for React Native
+const auth = initializeAuth(app);
 
 export { db, auth };

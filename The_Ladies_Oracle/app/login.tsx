@@ -12,7 +12,7 @@ export default function App() {
   const handleOnPressSignin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dateofbirth');
+      router.push('/profile');
     } catch (error: any) {
       Alert.alert('Login Error', error.message);
     }
