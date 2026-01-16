@@ -6,8 +6,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from "react-native";
 import globalStyles, { COLORS } from "../constants/styles";
+import { doc, updateDoc } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 
 const LocationDetails = () => {
   const [location, setLocation] = useState("");
@@ -49,6 +52,45 @@ const LocationDetails = () => {
     }
   };
 
+  const handleLocationSelect = async (selectedItem: any) => {
+    console.log("Selected location:", {
+      location_name: selectedItem.location_name,
+      longitude: selectedItem.longitude,
+      latitude: selectedItem.latitude,
+      country: selectedItem.country,
+    });
+    // Optional: clear the list after selection and only show the selected one
+    setDetails([selectedItem]);
+
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+          location_name: selectedItem.location_name,
+          longitude: selectedItem.longitude,
+          lattitude: selectedItem.latitude, // Note: Mapping API 'latitude' to your DB 'lattitude'
+          country: selectedItem.country,
+        });
+        Alert.alert(
+          "Location Updated",
+          "Your location has been successfully updated."
+        );
+      } catch (error) {
+        console.error("Error updating user location:", error);
+        Alert.alert(
+          "Error",
+          "Failed to update your location. Please try again."
+        );
+      }
+    } else {
+      Alert.alert(
+        "Not Logged In",
+        "You must be logged in to update your location."
+      );
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={globalStyles.scrollContent}>
       <Text style={globalStyles.title}>Location Details</Text>
@@ -62,40 +104,67 @@ const LocationDetails = () => {
         />
       </View>
 
-      <TouchableOpacity style={globalStyles.button} onPress={fetchLocationDetails}>
+      <TouchableOpacity
+        style={globalStyles.button}
+        onPress={fetchLocationDetails}
+      >
         <Text style={globalStyles.buttonText}>Get Details</Text>
       </TouchableOpacity>
 
       {loading && (
-        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
+        <ActivityIndicator
+          size="large"
+          color={COLORS.primary}
+          style={{ marginTop: 20 }}
+        />
       )}
 
-      {error ? <Text style={{ color: COLORS.highlight, marginTop: 10 }}>{error}</Text> : null}
+      {error ? (
+        <Text style={{ color: COLORS.highlight, marginTop: 10 }}>{error}</Text>
+      ) : null}
 
-      {details && Array.isArray(details) && details.length > 0 && (
+      {details && Array.isArray(details) && (
         <View style={{ marginTop: 20 }}>
-            {details.map((item, index) => (
-            <View key={index} style={globalStyles.card}>
+          {details.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleLocationSelect(item)}
+            >
+              <View style={globalStyles.card}>
                 <Text style={globalStyles.cardTitle}>{item.complete_name}</Text>
-                <Text style={globalStyles.cardText}>
-                <Text style={globalStyles.cardLabel}>Location Name: </Text>{item.location_name}
-                </Text>
-                <Text style={globalStyles.cardText}>
-                <Text style={globalStyles.cardLabel}>Country: </Text>{item.country}
-                </Text>
-                <Text style={globalStyles.cardText}>
-                <Text style={globalStyles.cardLabel}>Region: </Text>{item.administrative_zone_1}, {item.administrative_zone_2}
-                </Text>
-                <Text style={globalStyles.cardText}>
-                <Text style={globalStyles.cardLabel}>Coordinates: </Text>{item.latitude}, {item.longitude}
-                </Text>
-                <Text style={globalStyles.cardText}>
-                <Text style={globalStyles.cardLabel}>Timezone: </Text>{item.timezone} (Offset: {item.timezone_offset})
-                </Text>
-            </View>
-            ))}
+                {/* Only show other details if it's the only item */}
+                {details.length === 1 && (
+                  <>
+                    <Text style={globalStyles.cardText}>
+                      <Text style={globalStyles.cardLabel}>
+                        Location Name:{" "}
+                      </Text>
+                      {item.location_name}
+                    </Text>
+                    <Text style={globalStyles.cardText}>
+                      <Text style={globalStyles.cardLabel}>Country: </Text>
+                      {item.country}
+                    </Text>
+                    <Text style={globalStyles.cardText}>
+                      <Text style={globalStyles.cardLabel}>Region: </Text>
+                      {item.administrative_zone_1},{" "}
+                      {item.administrative_zone_2}
+                    </Text>
+                    <Text style={globalStyles.cardText}>
+                      <Text style={globalStyles.cardLabel}>Coordinates: </Text>
+                      {item.latitude}, {item.longitude}
+                    </Text>
+                    <Text style={globalStyles.cardText}>
+                      <Text style={globalStyles.cardLabel}>Timezone: </Text>
+                      {item.timezone} (Offset: {item.timezone_offset})
+                    </Text>
+                  </>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
-        )}
+      )}
     </ScrollView>
   );
 };

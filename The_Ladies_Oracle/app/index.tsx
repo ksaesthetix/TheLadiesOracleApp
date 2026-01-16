@@ -63,12 +63,26 @@ export default function Index() {
                 <Text style={globalStyles.buttonText}>Date of Birth</Text>
               </TouchableOpacity>
             </Link>
+            <Link href="./profile" asChild>
+              <TouchableOpacity style={globalStyles.button}>
+                <Text style={globalStyles.buttonText}>My Account</Text>
+              </TouchableOpacity>
+            </Link>
             <TouchableOpacity
               style={globalStyles.button}
               onPress={showRandomQuote}>
               <Text style={globalStyles.buttonText}>Daily Affirmation</Text>
             </TouchableOpacity>
-
+            <Link href="./login" asChild>
+              <TouchableOpacity style={globalStyles.button}>
+                <Text style={globalStyles.buttonText}>Login</Text>
+              </TouchableOpacity>
+            </Link>
+            <Link href="./signup" asChild>
+              <TouchableOpacity style={globalStyles.button}>
+                <Text style={globalStyles.buttonText}>Sign Up</Text>
+              </TouchableOpacity>
+            </Link>
             <Link href="./settings" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Settings</Text>

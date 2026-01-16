@@ -1,15 +1,21 @@
-import * as React from 'react';
-import { Text, View, StyleSheet, Dimensions, ScrollView, Image, TextInput, TouchableHighlight, Linking } from 'react-native';
-import Constants from 'expo-constants';
+import React, { useState } from 'react';
+import { Text, View, ScrollView, Image, TextInput, TouchableHighlight, Linking, Alert } from 'react-native';
 import globalStyles from '../constants/styles';
-import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
-const { width, height } = Dimensions.get('window');
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 
 export default function App() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleOnPressSignin = () => {
-    alert('Yahoooooo!!!!!!!!')
+  const handleOnPressSignin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/dateofbirth');
+    } catch (error: any) {
+      Alert.alert('Login Error', error.message);
+    }
   }
   
   return (
@@ -31,7 +37,9 @@ export default function App() {
               placeholder="Email"
               placeholderTextColor="#808080"
               underlineColorAndroid="transparent"
-              maxLength={20}
+              maxLength={40}
+              onChangeText={setEmail}
+              value={email}
             />
           </View>
           <View style={globalStyles.textInputView}>
@@ -42,6 +50,8 @@ export default function App() {
               underlineColorAndroid="transparent"
               secureTextEntry={true}
               maxLength={20}
+              onChangeText={setPassword}
+              value={password}
             />
           </View>
         </View>
@@ -65,4 +75,3 @@ export default function App() {
     </View>
   );
 };
-

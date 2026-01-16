@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@react-navigation/stack": "^7.6.15",
+    "expo-image-picker": "^17.0.10",
+    "react-native-paper": "^5.14.5"
+  }
+}
