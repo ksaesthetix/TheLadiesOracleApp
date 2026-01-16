@@ -58,6 +58,11 @@ export default function Index() {
                 <Text style={globalStyles.buttonText}>Location Details</Text>
               </TouchableOpacity>
             </Link>
+            <Link href="./dateofbirth" asChild>
+              <TouchableOpacity style={globalStyles.button}>
+                <Text style={globalStyles.buttonText}>Date of Birth</Text>
+              </TouchableOpacity>
+            </Link>
             <TouchableOpacity
               style={globalStyles.button}
               onPress={showRandomQuote}>

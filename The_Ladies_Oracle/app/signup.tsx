@@ -51,24 +51,6 @@ export default function SignUp() {
               maxLength={50}
             />
           </View>
-          <View style={globalStyles.textInputView}>
-            <TextInput 
-              style={globalStyles.textInputStyle}
-              placeholder="Birthdate"
-              placeholderTextColor="#808080"
-              underlineColorAndroid="transparent"
-              maxLength={20}
-            />
-          </View>
-          <View style={globalStyles.textInputView}>
-            <TextInput 
-              style={globalStyles.textInputStyle}
-              placeholder="Time of Birth"
-              placeholderTextColor="#808080"
-              underlineColorAndroid="transparent"
-              maxLength={20}
-            />
-          </View>
         </View>
         
         <TouchableHighlight activeOpacity={1} underlayColor={"#ad1111"} style={globalStyles.signupButton} onPress={handleOnPressSignup}>

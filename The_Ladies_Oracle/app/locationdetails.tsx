@@ -3,11 +3,11 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
+  TouchableOpacity,
   ActivityIndicator,
   ScrollView,
 } from "react-native";
+import globalStyles, { COLORS } from "../constants/styles";
 
 const LocationDetails = () => {
   const [location, setLocation] = useState("");
@@ -26,7 +26,6 @@ const LocationDetails = () => {
     setDetails(null);
 
     try {
-      // Replace localhost with your actual backend URL when using Expo on a device
       const response = await fetch(
         "https://theladiesoracleapp.onrender.com/astrology/geo-details",
         {
@@ -51,44 +50,54 @@ const LocationDetails = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Location Details</Text>
+    <ScrollView contentContainerStyle={globalStyles.scrollContent}>
+      <Text style={globalStyles.title}>Location Details</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter location"
-        value={location}
-        onChangeText={setLocation}
-      />
+      <View style={globalStyles.textInputView}>
+        <TextInput
+          style={globalStyles.textInputStyle}
+          placeholder="Enter location"
+          value={location}
+          onChangeText={setLocation}
+        />
+      </View>
 
-      <Button title="Get Details" onPress={fetchLocationDetails} />
+      <TouchableOpacity style={globalStyles.button} onPress={fetchLocationDetails}>
+        <Text style={globalStyles.buttonText}>Get Details</Text>
+      </TouchableOpacity>
 
-      {loading && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />}
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      {details && (
-        <View style={styles.detailsContainer}>
-          {Object.entries(details).map(([key, value]) => (
-            <Text key={key} style={styles.detailItem}>
-              <Text style={styles.detailKey}>{key}: </Text>
-              {JSON.stringify(value)}
-            </Text>
-          ))}
-        </View>
+      {loading && (
+        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
       )}
+
+      {error ? <Text style={{ color: COLORS.highlight, marginTop: 10 }}>{error}</Text> : null}
+
+      {details && Array.isArray(details) && details.length > 0 && (
+        <View style={{ marginTop: 20 }}>
+            {details.map((item, index) => (
+            <View key={index} style={globalStyles.card}>
+                <Text style={globalStyles.cardTitle}>{item.complete_name}</Text>
+                <Text style={globalStyles.cardText}>
+                <Text style={globalStyles.cardLabel}>Location Name: </Text>{item.location_name}
+                </Text>
+                <Text style={globalStyles.cardText}>
+                <Text style={globalStyles.cardLabel}>Country: </Text>{item.country}
+                </Text>
+                <Text style={globalStyles.cardText}>
+                <Text style={globalStyles.cardLabel}>Region: </Text>{item.administrative_zone_1}, {item.administrative_zone_2}
+                </Text>
+                <Text style={globalStyles.cardText}>
+                <Text style={globalStyles.cardLabel}>Coordinates: </Text>{item.latitude}, {item.longitude}
+                </Text>
+                <Text style={globalStyles.cardText}>
+                <Text style={globalStyles.cardLabel}>Timezone: </Text>{item.timezone} (Offset: {item.timezone_offset})
+                </Text>
+            </View>
+            ))}
+        </View>
+        )}
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { padding: 20, flexGrow: 1, backgroundColor: "#fff" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 10, marginBottom: 10, borderRadius: 5 },
-  error: { color: "red", marginTop: 10 },
-  detailsContainer: { marginTop: 20 },
-  detailItem: { marginBottom: 10 },
-  detailKey: { fontWeight: "bold" },
-});
 
 export default LocationDetails;
