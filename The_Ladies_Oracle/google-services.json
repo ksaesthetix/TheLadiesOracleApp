@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "314108721004",
+    "project_id": "theladiesoracle",
+    "storage_bucket": "theladiesoracle.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314108721004:android:bfdee3c178aebdf0402549",
+        "android_client_info": {
+          "package_name": "com.theladiesoracle.The_Ladies_Oracle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-7TKyzXRBitwkVDPROgqO8rTMvIEy4KA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

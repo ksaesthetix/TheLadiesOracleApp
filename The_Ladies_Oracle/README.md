@@ -1,50 +1,85 @@
-# Welcome to your Expo app 👋
+# The Ladies Oracle
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Welcome to The Ladies Oracle, a mystical mobile application designed to provide guidance and insight. This project is a complete application suite, including a mobile front-end and a supporting back-end.
 
-## Get started
+## Project Overview
 
-1. Install dependencies
+"The Ladies' Oracle" is a modern digital take on classic divination tools. It allows users to create a profile, ask questions, and receive answers from the oracle.
 
-   ```bash
-   npm install
-   ```
+This repository contains two main parts:
 
-2. Start the app
+-   **/The_Ladies_Oracle**: The mobile application built with Expo (React Native).
+-   **/backend**: The backend server that powers the app's features.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Getting Started
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Prerequisites
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+-   [Node.js](https://nodejs.org/) (LTS version recommended)
+-   [Expo Go](https://expo.dev/go) app on your Android or iOS device (for testing)
+-   [Android Studio](https://developer.android.com/studio) or [Xcode](https://developer.apple.com/xcode/) for running on emulators/simulators.
+-   A configured Firebase project.
 
-## Get a fresh project
+### 1. Backend Setup
 
-When you're ready, run:
+First, set up and run the backend server.
 
 ```bash
-npm run reset-project
+# Navigate to the backend directory
+cd backend
+
+# Install dependencies
+npm install
+
+# Start the server
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+*Note: Additional configuration, such as creating a `.env` file with database credentials or API keys, may be required. Please refer to any specific documentation within the `backend` directory.*
 
-## Learn more
+### 2. Frontend Setup
 
-To learn more about developing your project with Expo, look at the following resources:
+With the backend running, you can now start the mobile application.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+# Navigate to the frontend directory
+cd The_Ladies_Oracle
 
-## Join the community
+# Install dependencies
+npm install
 
-Join our community of developers creating universal apps.
+# Start the Expo development server
+npx expo start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+In the output, you'll find options to open the app in:
+
+-   An [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+-   An [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+-   The [Expo Go](https://expo.dev/go) app on your physical device.
+
+---
+
+## Features
+
+-   **User Authentication**: Secure sign-up and login functionality.
+-   **User Profiles**: View and manage your profile information, including display name and membership date.
+-   **Oracle Questions**: Select from a list of questions to ask the oracle.
+-   **Mystical Answers**: Receive guidance and answers to your chosen questions.
+
+---
+
+## Technology Stack
+
+-   **Frontend**: [Expo](https://expo.dev/), [React Native](https://reactnative.dev/), [Firebase](https://firebase.google.com/)
+-   **Backend**: Node.js, Express
+-   **Database**: Firestore
+
+---
+
+## About
+
+This application is a product of [theladiesoracle.com](https://theladiesoracle.com/).
+© 2025 theladiesoracle App v1.0

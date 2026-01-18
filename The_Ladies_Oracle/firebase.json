@@ -1,0 +1,13 @@
+{
+  "apphosting": {
+    "backendId": "theladiesoracle",
+    "rootDir": "The_Ladies_Oracle",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
+    ]
+  }
+}
