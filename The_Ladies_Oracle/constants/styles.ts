@@ -46,7 +46,8 @@ export const COLORS = {
 const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 8, //Constants.statusBarHeight,
+    paddingTop: 50, 
+    paddingBottom:10,
     backgroundColor: COLORS.backgroundLight,
   },
   pageText: {

@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import Constants from "expo-constants";
-import globalStyles from '../constants/styles';
+import globalStyles from '../../constants/styles';
 import {
   Text,
   View,
@@ -70,7 +70,7 @@ export default function Settings() {
           </Link>
         </View>
       </ScrollView>
-
+      {/*
       <View style={globalStyles.footer}>
               <Text style={globalStyles.footerText}>
                 2025{" "}
@@ -82,7 +82,7 @@ export default function Settings() {
                 </Text>{" "}
                 App v1.0
               </Text>
-        </View>
+        </View>*/}
     </View>
   );
 };

@@ -1,34 +1,30 @@
 import { initializeApp } from "firebase/app";
 import {
-  initializeFirestore,
   getFirestore,
-  persistentLocalCache,
 } from "firebase/firestore";
-import { initializeAuth, getReactNativePersistence  } from "firebase/auth";
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Firebase configuration
+// Firebase configuration is now loaded from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAy1YGcj1z4fhicAAgaIOeytgy8BZYaW68",
-  authDomain: "theladiesoracle.firebaseapp.com",
-  projectId: "theladiesoracle",
-  storageBucket: "theladiesoracle.appspot.com",
-  messagingSenderId: "314108721004",
-  appId: "1:314108721004:web:5f5cf4ecc7b7d627402549",
-  measurementId: "G-KWW16LMXCL",
+  apiKey: process.env.EXPO_PUBLIC_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_MEASUREMENT_ID,
 };
 
- // Initialize Firebase
- const app = initializeApp(firebaseConfig);
- 
-// Initialize Firestore with React Native-compatible persistence
-//const db = initializeFirestore(app, {localCache: persistentLocalCache(),});
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
 // Initialize Firestore to connect to the 'default' database.
-// Persistence is enabled by default on mobile clients.
 const db = getFirestore(app, "default");
- 
- // Initialize Auth with persistence for React Native
-//const auth = initializeAuth(app);
-const auth = initializeAuth(app, {persistence: getReactNativePersistence(AsyncStorage),});
- 
+
+// Initialize Auth with persistence for React Native
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
 export { db, auth };

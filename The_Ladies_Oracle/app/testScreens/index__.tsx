@@ -8,8 +8,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import globalStyles from "../constants/styles";
-import { useWisdomArchive } from "./contexts/WisdomArchiveContext";
+import globalStyles from "../../constants/styles";
+import { useWisdomArchive } from "../contexts/WisdomArchiveContext";
 
 const { width } = Dimensions.get("window");
 

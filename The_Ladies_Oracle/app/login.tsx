@@ -10,8 +10,13 @@ export default function App() {
   const [password, setPassword] = useState('');
 
   const handleOnPressSignin = async () => {
+    if (!email || !password) {
+      Alert.alert('Login Error', 'Please enter both email and password.');
+      return;
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      console.log(`User has signed in with email: ${email}`);
       router.push('/profile');
     } catch (error: any) {
       Alert.alert('Login Error', error.message);
@@ -67,11 +72,12 @@ export default function App() {
           </Text>
         </Text>
       </ScrollView>
+      {/*
       <View style={globalStyles.footer}>
         <Text style={globalStyles.footerText}>
           2025 <Text onPress={() => Linking.openURL('https://theladiesoracle.com/')} style={{ color: '#1e3274' }}>theladiesoracle</Text> App v1.0
         </Text>
-      </View>
+      </View>*/}
     </View>
   );
 };

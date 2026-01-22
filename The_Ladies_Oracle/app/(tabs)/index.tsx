@@ -10,8 +10,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import globalStyles from "../constants/styles";
-import { useWisdomArchive } from "./contexts/WisdomArchiveContext";
+import globalStyles from "../../constants/styles";
+import { useWisdomArchive } from "../contexts/WisdomArchiveContext";
 
 const { width } = Dimensions.get("window");
 
@@ -48,11 +48,12 @@ export default function Index() {
         {/* Scrollable content */}
         <ScrollView contentContainerStyle={globalStyles.scrollContent}>
           <View style={globalStyles.buttonContainer}>
+            {/*
             <Link href="./questionselector" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Ask The Oracle</Text>
               </TouchableOpacity>
-            </Link>
+            </Link>*/}
             <Link href="./locationdetails" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Location Details</Text>
@@ -63,11 +64,12 @@ export default function Index() {
                 <Text style={globalStyles.buttonText}>Date of Birth</Text>
               </TouchableOpacity>
             </Link>
+            {/*
             <Link href="./profile" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>My Account</Text>
               </TouchableOpacity>
-            </Link>
+            </Link>*/}
             <TouchableOpacity
               style={globalStyles.button}
               onPress={showRandomQuote}>
@@ -83,15 +85,16 @@ export default function Index() {
                 <Text style={globalStyles.buttonText}>Sign Up</Text>
               </TouchableOpacity>
             </Link>
+            {/*
             <Link href="./settings" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Settings</Text>
               </TouchableOpacity>
-            </Link>
+            </Link>*/}
           </View>
         </ScrollView>
 
-        {/* Fixed footer */}
+        {/* 
         <View style={globalStyles.footer}>
           <Text style={globalStyles.footerText}>
             2025{" "}
@@ -103,7 +106,7 @@ export default function Index() {
             </Text>{" "}
             App v1.0
           </Text>
-        </View>
+        </View>*/}
       </View>
 
       {/* Modal */}

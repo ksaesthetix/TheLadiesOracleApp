@@ -12,15 +12,13 @@ import { useRouter } from "expo-router";
 
 const API_URL = "https://theladiesoracleapp.onrender.com";
 
-type Question = { _id: string; number?: number; question?: string; category?: string };
+type Question = { _id: string; number?: number; question?: string };
 
 export const options = { headerShown: false };
 
 export default function QuestionSelector() {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [categories, setCategories] = useState<string[]>(["All"]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,11 +28,9 @@ export default function QuestionSelector() {
         const text = await res.text();
         if (!text) throw new Error("Empty response from /questions");
         const data = JSON.parse(text);
-        const sorted = data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0));
-        setQuestions(sorted);
-        // derive categories from fetched questions
-        const derived = Array.from(new Set(sorted.map((q: any) => q.category).filter(Boolean))) as string[];
-        setCategories(["All", ...derived]);
+        setQuestions(
+          data.sort((a: Question, b: Question) => (a.number ?? 0) - (b.number ?? 0))
+        );
         setLoading(false);
       })
       .catch((err) => {
@@ -58,34 +54,9 @@ export default function QuestionSelector() {
       </View>
 
       {/* Scrollable Question List */}
-        <>
-          {/* Category Tabs */}
-          <View style={globalStyles.tabContainer}>
-            <View style={globalStyles.tabWrap}>
-              {categories.map((cat) => {
-                const active = cat === selectedCategory;
-                return (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[globalStyles.tab, active && globalStyles.activeTab]}
-                    onPress={() => setSelectedCategory(cat)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[globalStyles.tabText, active && globalStyles.activeTabText]}>
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-
-          <ScrollView contentContainerStyle={globalStyles.scrollContent}>
-          <View style={globalStyles.questionList}>
-          {(
-            selectedCategory === "All" ? questions : questions.filter((q) => q.category === selectedCategory)
-          ).map((q) => (
+      <ScrollView contentContainerStyle={globalStyles.scrollContent}>
+        <View style={globalStyles.questionList}>
+          {questions.map((q) => (
             <TouchableOpacity
               key={q._id}
               style={globalStyles.questionRow}
@@ -105,7 +76,7 @@ export default function QuestionSelector() {
           ))}
         </View>
       </ScrollView>
-        </>
     </SafeAreaView>
   );
 }
+
