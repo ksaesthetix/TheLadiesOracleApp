@@ -54,6 +54,7 @@ export default function Index() {
                 <Text style={globalStyles.buttonText}>Ask The Oracle</Text>
               </TouchableOpacity>
             </Link>*/}
+            {/*
             <Link href="./locationdetails" asChild>
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Location Details</Text>
@@ -63,7 +64,7 @@ export default function Index() {
               <TouchableOpacity style={globalStyles.button}>
                 <Text style={globalStyles.buttonText}>Date of Birth</Text>
               </TouchableOpacity>
-            </Link>
+            </Link>*/}
             {/*
             <Link href="./profile" asChild>
               <TouchableOpacity style={globalStyles.button}>

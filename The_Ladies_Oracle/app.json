@@ -4,14 +4,14 @@
     "slug": "The_Ladies_Oracle",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/The_Ladies_Oracle_Logo.jpg",
+    "icon": "./assets/images/The_Ladies_Oracle_Logo.png",
     "scheme": "theladiesoracle",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.theladiesoracle.TheLadiesOracle",
-      "googleServicesFile":"./GoogleService-Info.plist",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -37,7 +37,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/The_Ladies_Oracle_Logo.jpg",
+          "image": "./assets/images/The_Ladies_Oracle_Logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -45,7 +45,9 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
