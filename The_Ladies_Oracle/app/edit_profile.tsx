@@ -1,33 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-    View, 
-    ScrollView, 
-    Text, 
-    TextInput, 
-    Image, 
-    TouchableOpacity, 
-    StyleSheet, 
-    Alert, 
-    ActivityIndicator, 
+    View,
+    Pressable,
+    StyleSheet,
+    Alert,
     Platform
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import globalStyles, { COLORS } from '../constants/styles';
 import { useAuth } from './contexts/AuthContext';
 import { db } from '../firebaseConfig'; // Import the shared db instance
+import { AppText, Avatar, Button, Card, LoadingView, Screen, TextField } from '../components/ui';
+import { spacing } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 const EditProfileScreen = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const { colors } = useTheme();
 
   const [name, setName] = useState('');
-  const [profilePicUri, setProfilePicUri] = useState<string | null>(null); 
-  const [loading, setLoading] = useState(true); 
-  const [saving, setSaving] = useState(false); 
+  const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const fetchUserData = useCallback(async () => {
     if (!user) return;
@@ -117,70 +116,80 @@ const EditProfileScreen = () => {
   };
 
   if (loading) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{ marginTop: 10 }}>Loading...</Text>
-      </View>
-    );
+    return <LoadingView message="Loading..." />;
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.avatarContainer}>
-        <Image
-          source={{ uri: profilePicUri || 'https://via.placeholder.com/120' }}
-          style={styles.avatar}
+    <Screen scroll edges={['bottom']} decor keyboardAvoiding>
+      <View style={styles.avatarSection}>
+        <Pressable onPress={pickImage} style={styles.avatarWrap} accessibilityRole="button" accessibilityLabel="Change picture">
+          <Avatar uri={profilePicUri} name={name} size={128} />
+          <View style={[styles.cameraBadge, { backgroundColor: colors.primary, borderColor: colors.background }]}>
+            <Ionicons name="camera" size={16} color={colors.onPrimary} />
+          </View>
+        </Pressable>
+        <Button
+          title="Change Picture"
+          variant="outline"
+          size="sm"
+          fullWidth={false}
+          onPress={pickImage}
+          style={styles.changePicture}
         />
-        <TouchableOpacity onPress={pickImage} style={globalStyles.buttonOutline}>
-          <Text style={globalStyles.buttonOutlineText}>Change Picture</Text>
-        </TouchableOpacity>
       </View>
 
-      <Text style={globalStyles.label}>Display Name</Text>
-      <View style={globalStyles.textInputView}>
-        <TextInput
-          style={globalStyles.textInputStyle}
+      <Card>
+        <TextField
+          label="Display Name"
+          icon="person-outline"
           placeholder="Enter your name"
           value={name}
           onChangeText={setName}
         />
-      </View>
+        <AppText variant="caption" tone="muted" style={styles.hint}>
+          This is the name the Oracle will greet you by.
+        </AppText>
+      </Card>
 
-      <TouchableOpacity
-        style={[globalStyles.button, { marginTop: 30 }]}
+      <Button
+        title="Save Profile"
         onPress={handleSave}
         disabled={saving}
-      >
-        {saving ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={globalStyles.buttonText}>Save Profile</Text>
-        )}
-      </TouchableOpacity>
-    </ScrollView>
+        loading={saving}
+        style={styles.save}
+      />
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 20,
+  avatarSection: {
+    alignItems: 'center',
+    paddingTop: spacing.xxl,
+    marginBottom: spacing.xxxl,
   },
-  centered: {
+  avatarWrap: {
+    position: 'relative',
+  },
+  cameraBadge: {
+    position: 'absolute',
+    right: 2,
+    bottom: 2,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 3,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  avatarContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
+  changePicture: {
+    marginTop: spacing.lg,
   },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 15,
-    backgroundColor: '#e0e0e0',
+  hint: {
+    marginTop: spacing.sm,
+  },
+  save: {
+    marginTop: spacing.xxl,
   },
 });
 

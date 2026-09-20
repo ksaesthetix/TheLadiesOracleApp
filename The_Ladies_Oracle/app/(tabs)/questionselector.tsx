@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import globalStyles from "../../constants/styles";
+import { View, Pressable, ScrollView, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { AppText, Chip, LoadingView, PageHeader, Screen } from "../../components/ui";
+import { cardShadow, radius, spacing } from "../../constants/theme";
+import { useTheme } from "../../hooks/useTheme";
 
 const API_URL = "https://theladiesoracleapp.onrender.com";
 
@@ -18,6 +14,8 @@ export const options = { headerShown: false };
 
 export default function QuestionSelector() {
   const router = useRouter();
+  const theme = useTheme();
+  const { colors } = theme;
   const [questions, setQuestions] = useState<Question[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -44,68 +42,108 @@ export default function QuestionSelector() {
   }, []);
 
   if (loading) {
-    return <ActivityIndicator style={{ flex: 1 }} />;
+    return <LoadingView message="Gathering the questions..." />;
   }
 
+  const visibleQuestions =
+    selectedCategory === "All" ? questions : questions.filter((q) => q.category === selectedCategory);
+
   return (
-    <SafeAreaView style={globalStyles.container}>
+    <Screen edges={['top']} padded={false} decor>
       {/* Fixed Header */}
-      <View style={globalStyles.questionfixedHeader}>
-        <Text style={globalStyles.title}>ASK THE ORACLE</Text>
-        <View style={globalStyles.selectBox}>
-          <Text style={globalStyles.selectBoxText}>Select a question</Text>
-        </View>
+      <View style={styles.header}>
+        <PageHeader
+          eyebrow="Step 1 of 3"
+          title="Ask the Oracle"
+          subtitle="Choose the question weighing on your mind."
+        />
       </View>
 
-      {/* Scrollable Question List */}
-        <>
-          {/* Category Tabs */}
-          <View style={globalStyles.tabContainer}>
-            <View style={globalStyles.tabWrap}>
-              {categories.map((cat) => {
-                const active = cat === selectedCategory;
-                return (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[globalStyles.tab, active && globalStyles.activeTab]}
-                    onPress={() => setSelectedCategory(cat)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[globalStyles.tabText, active && globalStyles.activeTabText]}>
-                      {cat}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-
-          <ScrollView contentContainerStyle={globalStyles.scrollContent}>
-          <View style={globalStyles.questionList}>
-          {(
-            selectedCategory === "All" ? questions : questions.filter((q) => q.category === selectedCategory)
-          ).map((q) => (
-            <TouchableOpacity
-              key={q._id}
-              style={globalStyles.questionRow}
-              onPress={() => {
-                console.log(`✅ Selected Question Number: ${q.number}`);
-                console.log(`✅ Selected Question Text: ${q.question}`);
-                router.push({
-                  pathname: "/iconselector",
-                  params: { question: q.number?.toString() },
-                });
-              }}
-              activeOpacity={0.7}
-            >
-              <Text style={globalStyles.questionNumber}>{q.number}</Text>
-              <Text style={globalStyles.questionText}>{q.question}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      {/* Category Tabs */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.chipStrip}
+        contentContainerStyle={styles.chipRow}
+      >
+        {categories.map((cat) => (
+          <Chip
+            key={cat}
+            label={cat}
+            active={cat === selectedCategory}
+            onPress={() => setSelectedCategory(cat)}
+          />
+        ))}
       </ScrollView>
-        </>
-    </SafeAreaView>
+
+      {/* Scrollable Question List */}
+      <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+        {visibleQuestions.map((q) => (
+          <Pressable
+            key={q._id}
+            onPress={() => {
+              console.log(`✅ Selected Question Number: ${q.number}`);
+              console.log(`✅ Selected Question Text: ${q.question}`);
+              router.push({
+                pathname: "/iconselector",
+                params: { question: q.number?.toString() },
+              });
+            }}
+            style={({ pressed }) => [
+              styles.row,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              cardShadow(theme),
+              pressed && { backgroundColor: colors.surfaceAlt, transform: [{ scale: 0.99 }] },
+            ]}
+          >
+            <View style={[styles.numberBadge, { backgroundColor: colors.primarySoft }]}>
+              <AppText variant="label" tone="primary">{q.number}</AppText>
+            </View>
+            <AppText variant="body" style={styles.questionText}>{q.question}</AppText>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </Pressable>
+        ))}
+      </ScrollView>
+    </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    paddingHorizontal: spacing.xl,
+  },
+  chipStrip: {
+    flexGrow: 0,
+  },
+  chipRow: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  list: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.huge,
+    gap: spacing.md,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: radius.md,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+  },
+  numberBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  questionText: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+});

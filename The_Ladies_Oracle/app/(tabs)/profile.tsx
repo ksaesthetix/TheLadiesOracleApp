@@ -1,24 +1,28 @@
 
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  View,
-  ScrollView,
-  Linking,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
-import globalStyles, { COLORS } from "../../constants/styles";
+import { View, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
 import { auth, db } from "../../firebaseConfig";
 // Import the Firestore type for explicit casting
 import { doc, getDoc, Firestore } from "firebase/firestore";
+import {
+  AppText,
+  Avatar,
+  Button,
+  Card,
+  InfoRow,
+  LoadingView,
+  Screen,
+} from "../../components/ui";
+import { spacing } from "../../constants/theme";
+import { useTheme } from "../../hooks/useTheme";
 
 export default function ProfileScreen() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { colors } = useTheme();
 
   const [profileData, setProfileData] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -41,7 +45,7 @@ export default function ProfileScreen() {
           }
         } catch (err) {
           console.error("Error fetching user profile:", err);
-          setError(`Failed to load profile data. Please try again later.`); 
+          setError(`Failed to load profile data. Please try again later.`);
         } finally {
           setLoadingProfile(false);
         }
@@ -64,68 +68,92 @@ export default function ProfileScreen() {
   };
 
   if (authLoading || loadingProfile) {
-    return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{marginTop: 10}}>Loading Profile...</Text>
-      </View>
-    );
+    return <LoadingView message="Loading Profile..." />;
   }
 
   if (!user) {
     return (
-      <View style={styles.centeredContainer}>
-        <Text style={{color: 'red'}}>You are not logged in.</Text>
-         <TouchableOpacity style={globalStyles.button} onPress={() => router.replace("/login")}>
-            <Text style={globalStyles.buttonText}>Go to Login</Text>
-        </TouchableOpacity>
-      </View>
+      <Screen centered edges={['top']} decor>
+        <Ionicons name="person-circle-outline" size={64} color={colors.textMuted} />
+        <AppText variant="heading" align="center" style={styles.stateTitle}>
+          You are not logged in.
+        </AppText>
+        <Button
+          title="Go to Login"
+          fullWidth={false}
+          onPress={() => router.replace("/login")}
+          style={styles.stateAction}
+        />
+      </Screen>
     )
   }
-  
+
   if (error) {
     return (
-      <View style={styles.centeredContainer}>
-        <Text style={{ color: "red", textAlign: 'center', paddingHorizontal: 20 }}>{error}</Text>
-      </View>
+      <Screen centered edges={['top']} decor>
+        <Ionicons name="alert-circle-outline" size={64} color={colors.danger} />
+        <AppText variant="body" tone="danger" align="center" style={styles.stateTitle}>
+          {error}
+        </AppText>
+      </Screen>
     );
   }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.headerText}>My Profile</Text>
-      <View style={styles.profileCard}>
-        <Text style={styles.profileLabel}>Email:</Text>
-        <Text style={styles.profileValue}>{user.email || "N/A"}</Text>
+  const displayName = profileData?.displayName || user.displayName || user.email || "";
+  const avatarUri = profileData?.photoURL || user.photoURL || null;
 
-        {profileData?.displayName && (
-          <>
-            <Text style={styles.profileLabel}>Display Name:</Text>
-            <Text style={styles.profileValue}>{profileData.displayName}</Text>
-          </>
-        )}
-        
-        <Text style={styles.profileLabel}>Member Since:</Text>
-        <Text style={styles.profileValue}>
-          {user.metadata.creationTime
-            ? new Date(user.metadata.creationTime).toLocaleDateString()
-            : "N/A"}
-        </Text>
+  return (
+    <Screen scroll edges={['top']} decor>
+      <View style={styles.hero}>
+        <Avatar uri={avatarUri} name={displayName} size={104} />
+        <AppText variant="overline" tone="accent" align="center" style={styles.eyebrow}>
+          My Profile
+        </AppText>
+        <AppText variant="title" align="center">
+          {profileData?.displayName || "Welcome"}
+        </AppText>
+        <AppText variant="caption" tone="muted" align="center" style={styles.email}>
+          {user.email || "N/A"}
+        </AppText>
       </View>
 
-      <View style={globalStyles.buttonContainer}>
-        <TouchableOpacity style={globalStyles.button} onPress={() => router.push('/edit_profile')}>
-            <Text style={globalStyles.buttonText}>Edit Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={globalStyles.button} onPress={() => router.push('/settings')}>
-            <Text style={globalStyles.buttonText}>Settings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[globalStyles.button, styles.logoutButton]}
+      <Card>
+        <InfoRow label="Email" value={user.email || "N/A"} divider />
+
+        {profileData?.displayName && (
+          <InfoRow label="Display Name" value={profileData.displayName} divider />
+        )}
+
+        <InfoRow
+          label="Member Since"
+          value={
+            user.metadata.creationTime
+              ? new Date(user.metadata.creationTime).toLocaleDateString()
+              : "N/A"
+          }
+        />
+      </Card>
+
+      <View style={styles.actions}>
+        <Button
+          title="Edit Profile"
+          icon={<Ionicons name="create-outline" size={18} color={colors.onPrimary} />}
+          onPress={() => router.push('/edit_profile')}
+        />
+        <Button
+          title="Settings"
+          variant="secondary"
+          icon={<Ionicons name="settings-outline" size={18} color={colors.primary} />}
+          onPress={() => router.push('/settings')}
+          style={styles.action}
+        />
+        <Button
+          title="Logout"
+          variant="danger"
+          icon={<Ionicons name="log-out-outline" size={18} color={colors.danger} />}
           onPress={handleLogout}
-        >
-          <Text style={globalStyles.buttonText}>Logout</Text>
-        </TouchableOpacity>
+          style={styles.action}
+        />
       </View>
       {/*
        <View style={globalStyles.footer}>
@@ -140,54 +168,33 @@ export default function ProfileScreen() {
             App v1.0
           </Text>
         </View>*/}
-    </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingTop: 50,
-    paddingBottom: 10, 
-  },
-  centeredContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  hero: {
     alignItems: 'center',
-    padding: 20,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl,
   },
-  headerText: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: COLORS.primary,
-    marginBottom: 20,
-    marginTop: 40, 
-    textAlign: "center",
+  eyebrow: {
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
   },
-  profileCard: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  email: {
+    marginTop: spacing.xs,
   },
-  profileLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#555",
-    marginTop: 10,
+  actions: {
+    marginTop: spacing.xxl,
   },
-  profileValue: {
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 5,
+  action: {
+    marginTop: spacing.md,
   },
-  logoutButton: {
-    backgroundColor: COLORS.accent, 
-  }
+  stateTitle: {
+    marginTop: spacing.lg,
+  },
+  stateAction: {
+    marginTop: spacing.xl,
+  },
 });

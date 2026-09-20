@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import globalStyles from '../constants/styles';
+import { LoadingView, PageHeader, Screen } from '../components/ui';
+import { cardShadow, radius, spacing } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 export const options = { headerShown: false };
 const API_URL = 'https://theladiesoracleapp.onrender.com';
@@ -11,8 +13,14 @@ type IconDoc = {
   symbol: string;
 };
 
+const COLUMNS = 4;
+const GRID_GAP = spacing.md;
+
 export default function IconSelector() {
   const router = useRouter();
+  const theme = useTheme();
+  const { colors } = theme;
+  const { width } = useWindowDimensions();
   const { question } = useLocalSearchParams(); // ✅ Receive question param
 
   const [icons, setIcons] = useState<IconDoc[]>([]);
@@ -32,18 +40,24 @@ export default function IconSelector() {
   }, []);
 
   if (loading) {
-    return <ActivityIndicator style={{ flex: 1 }} size="large" color="#000" />;
+    return <LoadingView message="Gathering the symbols..." />;
   }
 
+  // Square tiles that fill the row evenly regardless of device width.
+  const tileSize = Math.floor((width - spacing.xl * 2 - GRID_GAP * (COLUMNS - 1)) / COLUMNS);
+
   return (
-    <View style={globalStyles.container}>
-      <Text style={globalStyles.title}>ASK THE ORACLE</Text>
-      <Text style={globalStyles.subtitle}>Let your intuition choose your icon...</Text>
-      <View style={globalStyles.iconGrid}>
+    <Screen scroll edges={['bottom']} decor>
+      <PageHeader
+        eyebrow="Step 2 of 3"
+        title="Ask the Oracle"
+        subtitle="Let your intuition choose your icon..."
+        align="center"
+      />
+      <View style={styles.grid}>
         {icons.map(iconDoc => (
-          <TouchableOpacity
+          <Pressable
             key={iconDoc._id}
-            style={globalStyles.iconCircle}
             onPress={() => {
               console.log(`✅ Selected Icon ID: ${iconDoc._id}`);
               console.log(`✅ Selected Symbol: ${iconDoc.symbol}`);
@@ -55,12 +69,45 @@ export default function IconSelector() {
                 }
               });
             }}
-            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Icon ${iconDoc.symbol}`}
+            style={({ pressed }) => [
+              styles.tile,
+              {
+                width: tileSize,
+                height: tileSize,
+                backgroundColor: pressed ? colors.accentSoft : colors.surface,
+                borderColor: pressed ? colors.accent : colors.border,
+                transform: [{ scale: pressed ? 0.94 : 1 }],
+              },
+              cardShadow(theme),
+            ]}
           >
-            <Text style={globalStyles.iconSymbol}>{iconDoc.symbol}</Text>
-          </TouchableOpacity>
+            <Text style={[styles.symbol, { color: colors.primary }]}>{iconDoc.symbol}</Text>
+          </Pressable>
         ))}
       </View>
-    </View>
+    </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: GRID_GAP,
+    paddingTop: spacing.sm,
+  },
+  tile: {
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  symbol: {
+    // Intentionally no custom fontFamily: symbols need the system font's glyph coverage.
+    fontSize: 30,
+    textAlign: 'center',
+  },
+});

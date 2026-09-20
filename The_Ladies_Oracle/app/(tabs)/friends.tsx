@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
-import globalStyles from '../../constants/styles';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { AppText, Avatar, Button, Card, PageHeader, Screen } from '../../components/ui';
+import { spacing } from '../../constants/theme';
 
 // Define the type for a single friend, adding 'isFollowing'
 interface Friend {
@@ -33,15 +34,24 @@ const FriendItem: React.FC<FriendItemProps> = ({ friend }) => {
   };
 
   return (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{friend.name}</Text>
-      <TouchableOpacity 
-        style={[styles.followButton, {backgroundColor: isFollowing ? '#A9A9A9' : '#3498db'}]}
-        onPress={handleFollowToggle}
-      >
-        <Text style={styles.followButtonText}>{isFollowing ? 'Unfollow' : 'Follow'}</Text>
-      </TouchableOpacity>
-    </View>
+    <Card padded={false} style={styles.itemCard}>
+      <View style={styles.itemRow}>
+        <Avatar name={friend.name} size={46} />
+        <View style={styles.itemText}>
+          <AppText variant="bodyStrong" numberOfLines={1}>{friend.name}</AppText>
+          <AppText variant="caption" tone="muted">
+            {isFollowing ? 'Following' : 'Not following'}
+          </AppText>
+        </View>
+        <Button
+          title={isFollowing ? 'Unfollow' : 'Follow'}
+          variant={isFollowing ? 'secondary' : 'primary'}
+          size="sm"
+          fullWidth={false}
+          onPress={handleFollowToggle}
+        />
+      </View>
+    </Card>
   );
 };
 
@@ -53,45 +63,41 @@ export default function FriendsScreen() {
   );
 
   return (
-    <SafeAreaView style={globalStyles.container}>
-      <View style={{paddingHorizontal: 20, paddingTop: 20}}>
-        <Text style={globalStyles.title}>Friends</Text>
-        <FlatList
-          data={friends}
-          renderItem={renderFriend}
-          keyExtractor={item => item.id}
-          style={{marginTop: 20}}
-        />
-      </View>
-    </SafeAreaView>
+    <Screen edges={['top']} padded={false} decor>
+      <FlatList
+        data={friends}
+        renderItem={renderFriend}
+        keyExtractor={item => item.id}
+        ListHeaderComponent={
+          <PageHeader
+            eyebrow="Your circle"
+            title="Friends"
+            subtitle="Follow friends to share the Oracle's guidance."
+          />
+        }
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+      />
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 10,
+  list: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.huge,
+  },
+  itemCard: {
+    marginBottom: spacing.md,
+  },
+  itemRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   itemText: {
-    fontSize: 18,
-    color: '#333',
-  },
-  followButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  followButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
+    flex: 1,
+    marginHorizontal: spacing.md,
   },
 });

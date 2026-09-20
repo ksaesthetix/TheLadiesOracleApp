@@ -1,18 +1,29 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
+  Pressable,
   ActivityIndicator,
-  ScrollView,
+  StyleSheet,
   Alert,
 } from "react-native";
-import globalStyles, { COLORS } from "../constants/styles";
+import { Ionicons } from "@expo/vector-icons";
 import { doc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
+import {
+  AppText,
+  Button,
+  Card,
+  IconBubble,
+  InfoRow,
+  PageHeader,
+  Screen,
+  TextField,
+} from "../components/ui";
+import { spacing } from "../constants/theme";
+import { useTheme } from "../hooks/useTheme";
 
 const LocationDetails = () => {
+  const { colors } = useTheme();
   const [location, setLocation] = useState("");
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -92,81 +103,113 @@ const LocationDetails = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={globalStyles.scrollContent}>
-      <Text style={globalStyles.title}>Location Details</Text>
+    <Screen scroll edges={['bottom']} decor keyboardAvoiding>
+      <PageHeader
+        eyebrow="Your chart"
+        title="Location Details"
+        subtitle="Search for a place, then tap a result to save it to your profile."
+      />
 
-      <View style={globalStyles.textInputView}>
-        <TextInput
-          style={globalStyles.textInputStyle}
+      <Card>
+        <TextField
+          label="Location"
+          icon="location-outline"
           placeholder="Enter location"
           value={location}
           onChangeText={setLocation}
+          error={error || null}
         />
-      </View>
-
-      <TouchableOpacity
-        style={globalStyles.button}
-        onPress={fetchLocationDetails}
-      >
-        <Text style={globalStyles.buttonText}>Get Details</Text>
-      </TouchableOpacity>
+        <Button
+          title="Get Details"
+          onPress={fetchLocationDetails}
+          icon={<Ionicons name="search-outline" size={18} color={colors.onPrimary} />}
+          style={styles.submit}
+        />
+      </Card>
 
       {loading && (
         <ActivityIndicator
           size="large"
-          color={COLORS.primary}
-          style={{ marginTop: 20 }}
+          color={colors.primary}
+          style={styles.spinner}
         />
       )}
 
-      {error ? (
-        <Text style={{ color: COLORS.highlight, marginTop: 10 }}>{error}</Text>
-      ) : null}
-
       {details && Array.isArray(details) && (
-        <View style={{ marginTop: 20 }}>
+        <View style={styles.results}>
+          <AppText variant="overline" tone="muted" style={styles.resultsLabel}>
+            {details.length === 1 ? "Selected location" : "Select your location"}
+          </AppText>
           {details.map((item, index) => (
-            <TouchableOpacity
+            <Pressable
               key={index}
               onPress={() => handleLocationSelect(item)}
+              style={({ pressed }) => [pressed && styles.pressed]}
             >
-              <View style={globalStyles.card}>
-                <Text style={globalStyles.cardTitle}>{item.complete_name}</Text>
+              <Card style={styles.resultCard}>
+                <View style={styles.resultHeader}>
+                  <IconBubble name="location-outline" tone={details.length === 1 ? "primary" : "neutral"} size={36} />
+                  <AppText variant="heading" style={styles.resultTitle}>{item.complete_name}</AppText>
+                  {details.length !== 1 && (
+                    <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+                  )}
+                </View>
                 {/* Only show other details if it's the only item */}
                 {details.length === 1 && (
-                  <>
-                    <Text style={globalStyles.cardText}>
-                      <Text style={globalStyles.cardLabel}>
-                        Location Name:{" "}
-                      </Text>
-                      {item.location_name}
-                    </Text>
-                    <Text style={globalStyles.cardText}>
-                      <Text style={globalStyles.cardLabel}>Country: </Text>
-                      {item.country}
-                    </Text>
-                    <Text style={globalStyles.cardText}>
-                      <Text style={globalStyles.cardLabel}>Region: </Text>
-                      {item.administrative_zone_1},{" "}
-                      {item.administrative_zone_2}
-                    </Text>
-                    <Text style={globalStyles.cardText}>
-                      <Text style={globalStyles.cardLabel}>Coordinates: </Text>
-                      {item.latitude}, {item.longitude}
-                    </Text>
-                    <Text style={globalStyles.cardText}>
-                      <Text style={globalStyles.cardLabel}>Timezone: </Text>
-                      {item.timezone} (Offset: {item.timezone_offset})
-                    </Text>
-                  </>
+                  <View style={styles.resultDetails}>
+                    <InfoRow label="Location Name" value={`${item.location_name}`} divider />
+                    <InfoRow label="Country" value={`${item.country}`} divider />
+                    <InfoRow
+                      label="Region"
+                      value={`${item.administrative_zone_1}, ${item.administrative_zone_2}`}
+                      divider
+                    />
+                    <InfoRow label="Coordinates" value={`${item.latitude}, ${item.longitude}`} divider />
+                    <InfoRow
+                      label="Timezone"
+                      value={`${item.timezone} (Offset: ${item.timezone_offset})`}
+                    />
+                  </View>
                 )}
-              </View>
-            </TouchableOpacity>
+              </Card>
+            </Pressable>
           ))}
         </View>
       )}
-    </ScrollView>
+    </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  submit: {
+    marginTop: spacing.lg,
+  },
+  spinner: {
+    marginTop: spacing.xxl,
+  },
+  results: {
+    marginTop: spacing.xxl,
+  },
+  resultsLabel: {
+    marginBottom: spacing.md,
+  },
+  resultCard: {
+    marginBottom: spacing.md,
+  },
+  resultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  resultTitle: {
+    flex: 1,
+    marginLeft: spacing.md,
+  },
+  resultDetails: {
+    marginTop: spacing.md,
+  },
+  pressed: {
+    opacity: 0.9,
+  },
+});
 
 export default LocationDetails;

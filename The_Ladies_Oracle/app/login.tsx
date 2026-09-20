@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Text, View, ScrollView, Image, TextInput, TouchableHighlight, Linking, Alert } from 'react-native';
-import globalStyles from '../constants/styles';
+import { View, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import { AppText, Button, Card, Logo, PageHeader, Screen, TextField } from '../components/ui';
+import { spacing } from '../constants/theme';
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -22,62 +23,79 @@ export default function App() {
       Alert.alert('Login Error', error.message);
     }
   }
-  
-  return (
-    <View style={globalStyles.container}>
-      <ScrollView>
-        <View style={{ marginTop: -100 }}>
-          <Image 
-            source={{ uri: 'https://wilcity.com/wp-content/uploads/2018/12/sample-logo-design-png-3.png' }} 
-            style={globalStyles.logoImage}
-          />
-        </View>
-        <Text style={globalStyles.paragraph}>
-          Login Screen
-        </Text>
-        <View>
-          <View style={globalStyles.textInputView}>
-            <TextInput 
-              style={globalStyles.textInputStyle}
-              placeholder="Email"
-              placeholderTextColor="#808080"
-              underlineColorAndroid="transparent"
-              maxLength={40}
-              onChangeText={setEmail}
-              value={email}
-            />
-          </View>
-          <View style={globalStyles.textInputView}>
-            <TextInput 
-              style={globalStyles.textInputStyle}
-              placeholder="Password"
-              placeholderTextColor="#808080"
-              underlineColorAndroid="transparent"
-              secureTextEntry={true}
-              maxLength={20}
-              onChangeText={setPassword}
-              value={password}
-            />
-          </View>
-        </View>
-        
-        <TouchableHighlight activeOpacity={1} underlayColor={"#ad1111"} style={globalStyles.signinButton} onPress={handleOnPressSignin}>
-          <Text style={globalStyles.signinButtonText}>Log In</Text>
-        </TouchableHighlight>
 
-        <Text style={globalStyles.signupText}>
-          Don't have an account? {' '}
-          <Text style={globalStyles.signupLink} onPress={() => router.push('/signup')}>
+  return (
+    <Screen scroll edges={['bottom']} decor keyboardAvoiding contentStyle={styles.content}>
+      <Logo width={210} style={styles.logo} />
+
+      <PageHeader
+        eyebrow="Welcome back"
+        title="Log in to your Oracle"
+        subtitle="Enter your details to continue."
+        align="center"
+      />
+
+      <Card>
+        <TextField
+          label="Email"
+          icon="mail-outline"
+          placeholder="Email"
+          underlineColorAndroid="transparent"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          maxLength={40}
+          onChangeText={setEmail}
+          value={email}
+        />
+        <TextField
+          label="Password"
+          icon="lock-closed-outline"
+          placeholder="Password"
+          underlineColorAndroid="transparent"
+          secureTextEntry={true}
+          maxLength={20}
+          onChangeText={setPassword}
+          value={password}
+          containerStyle={styles.passwordField}
+        />
+
+        <Button title="Log In" onPress={handleOnPressSignin} style={styles.submit} />
+      </Card>
+
+      <View style={styles.footerRow}>
+        <AppText variant="body" tone="secondary" align="center">
+          Don’t have an account?{' '}
+          <AppText variant="bodyStrong" tone="primary" onPress={() => router.push('/signup')}>
             Sign up here
-          </Text>
-        </Text>
-      </ScrollView>
+          </AppText>
+        </AppText>
+      </View>
       {/*
       <View style={globalStyles.footer}>
         <Text style={globalStyles.footerText}>
           2025 <Text onPress={() => Linking.openURL('https://theladiesoracle.com/')} style={{ color: '#1e3274' }}>theladiesoracle</Text> App v1.0
         </Text>
       </View>*/}
-    </View>
+    </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  content: {
+    justifyContent: 'center',
+    paddingTop: spacing.xxl,
+  },
+  logo: {
+    marginBottom: spacing.sm,
+  },
+  passwordField: {
+    marginTop: spacing.lg,
+  },
+  submit: {
+    marginTop: spacing.xxl,
+  },
+  footerRow: {
+    marginTop: spacing.xxl,
+  },
+});

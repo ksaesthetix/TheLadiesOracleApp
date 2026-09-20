@@ -1,19 +1,23 @@
 import { Link } from "expo-router";
 import React, { useState } from "react";
-import Constants from "expo-constants";
 import {
-  Text,
   View,
   Modal,
-  ScrollView,
-  Linking,
-  Dimensions,
-  TouchableOpacity,
+  Pressable,
+  StyleSheet,
 } from "react-native";
-import globalStyles from "../../constants/styles";
+import { Ionicons } from "@expo/vector-icons";
 import { useWisdomArchive } from "../contexts/WisdomArchiveContext";
-
-const { width } = Dimensions.get("window");
+import {
+  AppText,
+  Button,
+  Card,
+  IconBubble,
+  Logo,
+  Screen,
+} from "../../components/ui";
+import { radius, spacing } from "../../constants/theme";
+import { useTheme } from "../../hooks/useTheme";
 
 const WISE_QUOTES = [
   "Wisdom begins in wonder.",
@@ -27,6 +31,7 @@ const WISE_QUOTES = [
 ];
 
 export default function Index() {
+  const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentQuote, setCurrentQuote] = useState("");
   const { addToArchive } = useWisdomArchive();
@@ -44,58 +49,90 @@ export default function Index() {
 
   return (
     <>
-      <View style={globalStyles.container}>
-        {/* Scrollable content */}
-        <ScrollView contentContainerStyle={globalStyles.scrollContent}>
-          <View style={globalStyles.buttonContainer}>
-            {/*
-            <Link href="./questionselector" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>Ask The Oracle</Text>
-              </TouchableOpacity>
-            </Link>*/}
-            {/*
-            <Link href="./locationdetails" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>Location Details</Text>
-              </TouchableOpacity>
-            </Link>
-            <Link href="./dateofbirth" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>Date of Birth</Text>
-              </TouchableOpacity>
-            </Link>*/}
-            {/*
-            <Link href="./profile" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>My Account</Text>
-              </TouchableOpacity>
-            </Link>*/}
-            <TouchableOpacity
-              style={globalStyles.button}
-              onPress={showRandomQuote}>
-              <Text style={globalStyles.buttonText}>Daily Affirmation</Text>
-            </TouchableOpacity>
-            <Link href="./login" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>Login</Text>
-              </TouchableOpacity>
-            </Link>
-            <Link href="./signup" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>Sign Up</Text>
-              </TouchableOpacity>
-            </Link>
-            {/*
-            <Link href="./settings" asChild>
-              <TouchableOpacity style={globalStyles.button}>
-                <Text style={globalStyles.buttonText}>Settings</Text>
-              </TouchableOpacity>
-            </Link>*/}
-          </View>
-        </ScrollView>
+      <Screen scroll edges={['top']} decor>
+        <View style={styles.hero}>
+          <Logo width={200} />
+          <AppText variant="overline" tone="accent" align="center" style={styles.eyebrow}>
+            Welcome
+          </AppText>
+          <AppText variant="display" align="center">
+            The Ladies’ Oracle
+          </AppText>
+          <AppText variant="subtitle" tone="secondary" align="center" style={styles.tagline}>
+            Guidance for the questions on your mind.
+          </AppText>
+        </View>
 
-        {/* 
+        {/*
+        <Link href="./questionselector" asChild>
+          <TouchableOpacity style={globalStyles.button}>
+            <Text style={globalStyles.buttonText}>Ask The Oracle</Text>
+          </TouchableOpacity>
+        </Link>*/}
+        {/*
+        <Link href="./locationdetails" asChild>
+          <TouchableOpacity style={globalStyles.button}>
+            <Text style={globalStyles.buttonText}>Location Details</Text>
+          </TouchableOpacity>
+        </Link>
+        <Link href="./dateofbirth" asChild>
+          <TouchableOpacity style={globalStyles.button}>
+            <Text style={globalStyles.buttonText}>Date of Birth</Text>
+          </TouchableOpacity>
+        </Link>*/}
+        {/*
+        <Link href="./profile" asChild>
+          <TouchableOpacity style={globalStyles.button}>
+            <Text style={globalStyles.buttonText}>My Account</Text>
+          </TouchableOpacity>
+        </Link>*/}
+
+        {/* Featured action */}
+        <Pressable
+          onPress={showRandomQuote}
+          accessibilityRole="button"
+          style={({ pressed }) => [pressed && styles.pressed]}
+        >
+          <Card tone="primary">
+            <View style={styles.featureRow}>
+              <IconBubble name="sparkles-outline" tone="onPrimary" size={48} />
+              <View style={styles.featureText}>
+                <AppText variant="heading" tone="onPrimary">Daily Affirmation</AppText>
+                <AppText variant="caption" tone="onPrimary" style={styles.featureCaption}>
+                  A moment of wisdom to carry with you today.
+                </AppText>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.onPrimary} />
+            </View>
+          </Card>
+        </Pressable>
+
+        <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+          Account
+        </AppText>
+        <Link href="./login" asChild>
+          <Button
+            title="Login"
+            variant="outline"
+            icon={<Ionicons name="log-in-outline" size={18} color={colors.primary} />}
+          />
+        </Link>
+        <Link href="./signup" asChild>
+          <Button
+            title="Sign Up"
+            variant="ghost"
+            icon={<Ionicons name="person-add-outline" size={18} color={colors.textSecondary} />}
+            style={styles.secondaryAction}
+          />
+        </Link>
+        {/*
+        <Link href="./settings" asChild>
+          <TouchableOpacity style={globalStyles.button}>
+            <Text style={globalStyles.buttonText}>Settings</Text>
+          </TouchableOpacity>
+        </Link>*/}
+
+        {/*
         <View style={globalStyles.footer}>
           <Text style={globalStyles.footerText}>
             2025{" "}
@@ -108,7 +145,7 @@ export default function Index() {
             App v1.0
           </Text>
         </View>*/}
-      </View>
+      </Screen>
 
       {/* Modal */}
       <Modal
@@ -117,26 +154,92 @@ export default function Index() {
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={globalStyles.modalOverlay}>
-          <View style={globalStyles.modalContent}>
-            <Text style={globalStyles.quoteText}>{currentQuote}</Text>
-            <TouchableOpacity
-              style={globalStyles.saveButton}
-              onPress={handleSave}
-            >
-              <Text style={globalStyles.buttonText}>Save to Archive</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={globalStyles.closeButton}
+        <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
+          <Card style={styles.modalCard}>
+            <IconBubble name="sparkles" tone="accent" size={56} />
+            <AppText variant="overline" tone="accent" align="center" style={styles.modalEyebrow}>
+              Daily Affirmation
+            </AppText>
+            <AppText variant="quote" align="center" style={styles.modalQuote}>
+              “{currentQuote}”
+            </AppText>
+            <Button title="Save to Archive" onPress={handleSave} style={styles.modalPrimary} />
+            <Button
+              title="Close"
+              variant="ghost"
               onPress={() => setModalVisible(false)}
-            >
-              <Text style={globalStyles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+              style={styles.modalSecondary}
+            />
+          </Card>
         </View>
       </Modal>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  hero: {
+    alignItems: 'center',
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxxl,
+  },
+  eyebrow: {
+    marginTop: spacing.xxl,
+    marginBottom: spacing.xs,
+  },
+  tagline: {
+    marginTop: spacing.sm,
+    maxWidth: 280,
+  },
+  pressed: {
+    transform: [{ scale: 0.985 }],
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  featureText: {
+    flex: 1,
+    marginLeft: spacing.lg,
+    marginRight: spacing.sm,
+  },
+  featureCaption: {
+    marginTop: 2,
+    opacity: 0.85,
+  },
+  sectionLabel: {
+    marginTop: spacing.xxxl,
+    marginBottom: spacing.md,
+  },
+  secondaryAction: {
+    marginTop: spacing.sm,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xxl,
+  },
+  modalCard: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: spacing.xxxl,
+    borderRadius: radius.xl,
+  },
+  modalEyebrow: {
+    marginTop: spacing.lg,
+  },
+  modalQuote: {
+    marginTop: spacing.md,
+  },
+  modalPrimary: {
+    marginTop: spacing.xxl,
+    alignSelf: 'stretch',
+  },
+  modalSecondary: {
+    marginTop: spacing.sm,
+    alignSelf: 'stretch',
+  },
+});
 
 

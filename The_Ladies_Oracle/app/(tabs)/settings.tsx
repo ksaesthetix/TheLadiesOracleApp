@@ -1,75 +1,87 @@
 import { Link } from "expo-router";
-import Constants from "expo-constants";
-import globalStyles from '../../constants/styles';
 import {
-  Text,
-  View,
   StyleSheet,
   Switch,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-  Linking
 } from "react-native";
 import { useState } from "react";
-
-const { width } = Dimensions.get("window");
+import { AppText, Card, IconBubble, ListRow, PageHeader, Screen } from "../../components/ui";
+import { spacing } from "../../constants/theme";
+import { useTheme } from "../../hooks/useTheme";
 
 export default function Settings() {
+  const { colors } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
+  const switchColors = {
+    trackColor: { false: colors.switchTrackOff, true: colors.primary },
+    thumbColor: colors.switchThumb,
+    ios_backgroundColor: colors.switchTrackOff,
+  };
+
   return (
-    <View style={globalStyles.container}>
-      <ScrollView contentContainerStyle={globalStyles.scrollContent}>
-        <Text style={globalStyles.title}>Settings</Text>
+    <Screen scroll edges={['bottom']} decor>
+      <PageHeader title="Settings" subtitle="Tune your Oracle experience." />
 
-        <View style={globalStyles.section}>
-          <Text style={globalStyles.sectionTitle}>Preferences</Text>
-
-          <View style={globalStyles.settingRow}>
-            <Text style={globalStyles.settingLabel}>Enable Notifications</Text>
+      <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+        Preferences
+      </AppText>
+      <Card padded={false}>
+        <ListRow
+          leading={<IconBubble name="notifications-outline" tone="primary" />}
+          title="Enable Notifications"
+          divider
+          trailing={
             <Switch
               value={notificationsEnabled}
               onValueChange={setNotificationsEnabled}
-              trackColor={{ false: "#ccc", true: "#1e3274" }}
-              thumbColor={notificationsEnabled ? "#fff" : "#f4f3f4"}
+              {...switchColors}
             />
-          </View>
-
-          <View style={globalStyles.settingRow}>
-            <Text style={globalStyles.settingLabel}>Dark Mode</Text>
+          }
+        />
+        <ListRow
+          leading={<IconBubble name="moon-outline" tone="accent" />}
+          title="Dark Mode"
+          trailing={
             <Switch
               value={darkModeEnabled}
               onValueChange={setDarkModeEnabled}
-              trackColor={{ false: "#ccc", true: "#1e3274" }}
-              thumbColor={darkModeEnabled ? "#fff" : "#f4f3f4"}
+              {...switchColors}
             />
-          </View>
-        </View>
+          }
+        />
+      </Card>
 
-        <View style={globalStyles.section}>
-          <Text style={globalStyles.sectionTitle}>Account</Text>
+      <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+        Account
+      </AppText>
+      <Card padded={false}>
+        <Link href="./profile" asChild>
+          <ListRow
+            leading={<IconBubble name="person-outline" tone="neutral" />}
+            title="Profile"
+            chevron
+            divider
+          />
+        </Link>
 
-          <Link href="./profile" asChild>
-            <TouchableOpacity style={globalStyles.linkButton}>
-              <Text style={globalStyles.linkText}>Profile</Text>
-            </TouchableOpacity>
-          </Link>
+        <Link href="./privacy" asChild>
+          <ListRow
+            leading={<IconBubble name="shield-checkmark-outline" tone="neutral" />}
+            title="Privacy Policy"
+            chevron
+            divider
+          />
+        </Link>
 
-          <Link href="./privacy" asChild>
-            <TouchableOpacity style={globalStyles.linkButton}>
-              <Text style={globalStyles.linkText}>Privacy Policy</Text>
-            </TouchableOpacity>
-          </Link>
-
-          <Link href="./help" asChild>
-            <TouchableOpacity style={globalStyles.linkButton}>
-              <Text style={globalStyles.linkText}>Help & Support</Text>
-            </TouchableOpacity>
-          </Link>
-        </View>
-      </ScrollView>
+        <Link href="./help" asChild>
+          <ListRow
+            leading={<IconBubble name="help-circle-outline" tone="neutral" />}
+            title="Help & Support"
+            chevron
+          />
+        </Link>
+      </Card>
       {/*
       <View style={globalStyles.footer}>
               <Text style={globalStyles.footerText}>
@@ -83,6 +95,13 @@ export default function Settings() {
                 App v1.0
               </Text>
         </View>*/}
-    </View>
+    </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  sectionLabel: {
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
+  },
+});

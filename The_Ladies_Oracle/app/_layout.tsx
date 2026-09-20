@@ -1,17 +1,40 @@
 
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from "expo-router";
+import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+  ThemeProvider as NavigationThemeProvider,
+} from "expo-router/react-navigation";
+// Per-weight imports keep the bundle small (the package root would pull in every weight).
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import { PlayfairDisplay_400Regular } from '@expo-google-fonts/playfair-display/400Regular';
+import { PlayfairDisplay_400Regular_Italic } from '@expo-google-fonts/playfair-display/400Regular_Italic';
+import { PlayfairDisplay_600SemiBold } from '@expo-google-fonts/playfair-display/600SemiBold';
+import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { ActivityIndicator, View } from 'react-native';
 import { WisdomArchiveProvider } from './contexts/WisdomArchiveContext';
+import { LoadingView } from '../components/ui';
+import { fonts } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
+
+// Keep the native splash visible until the custom fonts are ready.
+SplashScreen.preventAutoHideAsync();
 
 const StackLayout = () => {
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const theme = useTheme();
 
   useEffect(() => {
-    if (loading) return; 
+    if (loading) return;
 
     const authRoutes = ['login', 'signup', 'dateofbirth'];
     const inAuthRoute = segments.length > 0 && authRoutes.includes(segments[0] as string);
@@ -25,30 +48,91 @@ const StackLayout = () => {
   }, [user, loading, segments, router]);
 
   if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <LoadingView />;
   }
 
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.colors.headerBackground },
+        headerShadowVisible: false,
+        headerTintColor: theme.colors.primary,
+        headerTitleStyle: {
+          fontFamily: fonts.serifSemiBold,
+          fontSize: 18,
+          color: theme.colors.text,
+        },
+        headerBackButtonDisplayMode: 'minimal',
+        contentStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Login", presentation: 'modal' }} />
       <Stack.Screen name="signup" options={{ title: "Sign Up", presentation: 'modal' }} />
       <Stack.Screen name="dateofbirth" options={{ title: "Enter Your Birth Date", presentation: 'modal' }} />
       <Stack.Screen name="edit_profile" options={{ title: "Edit Profile" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
+      {/* Presentation only: friendlier header titles for routes that previously showed their file names */}
+      <Stack.Screen name="questionselector" options={{ title: "Ask the Oracle" }} />
+      <Stack.Screen name="iconselector" options={{ title: "Choose Your Icon" }} />
+      <Stack.Screen name="answerpage" options={{ title: "The Oracle's Answer" }} />
+      <Stack.Screen name="locationdetails" options={{ title: "Location" }} />
+      <Stack.Screen name="profile" options={{ title: "My Profile" }} />
     </Stack>
   );
 }
 
+/** Applies the app theme to React Navigation (headers, tab bar, transitions) and the status bar. */
+const ThemedNavigation = () => {
+  const theme = useTheme();
+  const base = theme.dark ? NavigationDarkTheme : NavigationDefaultTheme;
+  const navigationTheme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: theme.colors.primary,
+      background: theme.colors.background,
+      card: theme.colors.surface,
+      text: theme.colors.text,
+      border: theme.colors.border,
+      notification: theme.colors.accent,
+    },
+  };
+
+  return (
+    <NavigationThemeProvider value={navigationTheme}>
+      <StatusBar style={theme.dark ? 'light' : 'dark'} />
+      <StackLayout />
+    </NavigationThemeProvider>
+  );
+};
+
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    PlayfairDisplay_400Regular,
+    PlayfairDisplay_400Regular_Italic,
+    PlayfairDisplay_600SemiBold,
+    PlayfairDisplay_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
     <AuthProvider>
       <WisdomArchiveProvider>
-        <StackLayout />
+        <ThemedNavigation />
       </WisdomArchiveProvider>
     </AuthProvider>
   );
