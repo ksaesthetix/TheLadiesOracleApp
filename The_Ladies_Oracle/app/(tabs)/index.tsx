@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link,useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -18,6 +18,7 @@ import {
 } from "../../components/ui";
 import { radius, spacing } from "../../constants/theme";
 import { useTheme } from "../../hooks/useTheme";
+import { TodaySkyCard } from '../../components/TodaySkyCard';
 
 const WISE_QUOTES = [
   "Wisdom begins in wonder.",
@@ -31,6 +32,7 @@ const WISE_QUOTES = [
 ];
 
 export default function Index() {
+  const router = useRouter();
   const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentQuote, setCurrentQuote] = useState("");
@@ -107,6 +109,8 @@ export default function Index() {
           </Card>
         </Pressable>
 
+        <TodaySkyCard onPress={() => router.push('/chart')} style={styles.skyCard} />
+        {/*  
         <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
           Account
         </AppText>
@@ -124,7 +128,7 @@ export default function Index() {
             icon={<Ionicons name="person-add-outline" size={18} color={colors.textSecondary} />}
             style={styles.secondaryAction}
           />
-        </Link>
+        </Link>*/}
         {/*
         <Link href="./settings" asChild>
           <TouchableOpacity style={globalStyles.button}>
@@ -239,6 +243,9 @@ const styles = StyleSheet.create({
   modalSecondary: {
     marginTop: spacing.sm,
     alignSelf: 'stretch',
+  },
+  skyCard: {
+    marginTop: spacing.md,
   },
 });
 

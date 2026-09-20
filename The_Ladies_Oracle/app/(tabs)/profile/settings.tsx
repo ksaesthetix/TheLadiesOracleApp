@@ -4,9 +4,9 @@ import {
   Switch,
 } from "react-native";
 import { useState } from "react";
-import { AppText, Card, IconBubble, ListRow, PageHeader, Screen } from "../../components/ui";
-import { spacing } from "../../constants/theme";
-import { useTheme } from "../../hooks/useTheme";
+import { AppText, Card, IconBubble, ListRow, PageHeader, Screen } from "../../../components/ui";
+import { spacing } from "../../../constants/theme";
+import { useTheme } from "../../../hooks/useTheme";
 
 export default function Settings() {
   const { colors } = useTheme();

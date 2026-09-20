@@ -2,9 +2,9 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { AppText, Card, PageHeader, Screen } from '../components/ui';
-import { fonts, spacing } from '../constants/theme';
-import { useTheme } from '../hooks/useTheme';
+import { AppText, Card, PageHeader, Screen } from '../../../components/ui';
+import { fonts, spacing } from '../../../constants/theme';
+import { useTheme } from '../../../hooks/useTheme';
 
 const API_URL = 'https://theladiesoracleapp.onrender.com';
 

@@ -61,19 +61,21 @@ export default function TabLayout() {
       <Tabs.Screen name="index"
       options={{title: "Home", headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome name="home" size={size} color={color} />}} />
 
-      <Tabs.Screen name="friends"
-      options={{title: "Friends",headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome6 name="user-group" size={size} color={color} />}} />
+      {/*<Tabs.Screen name="friends"
+      options={{title: "Friends",headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome6 name="user-group" size={size} color={color} />}} />*/}
       <Tabs.Screen name="questionselector"
-      options={{title: "Ask the Oracle", headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome5 name="hamsa" size={size} color={color} />}} />
-
+      options={{title: "The Oracle", headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome5 name="hamsa" size={size} color={color} />}} />
+      <Tabs.Screen name="chart"
+      options={{ title: 'Chart', headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome5 name="star-and-crescent" size={size} color={color} />,}}/>
+      <Tabs.Screen name="today"
+      options={{title: "Today",headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome name="sun-o" size={size} color={color} />}} />
       <Tabs.Screen name="profile"
-      options={{title: "You",headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome name="user" size={size} color={color} />}} />
+      options={{title: "Profile",headerShown: false, tabBarIcon: ({ color, size }) => <FontAwesome name="user" size={size} color={color} />}} />
 
-
-
-      <Tabs.Screen
+      
+      {/*<Tabs.Screen
         name="settings"
-        options={{href: null,headerShown: true, title: "Settings"}}/>
+        options={{href: null,headerShown: true, title: "Settings"}}/>*/}
 
 
     </Tabs>

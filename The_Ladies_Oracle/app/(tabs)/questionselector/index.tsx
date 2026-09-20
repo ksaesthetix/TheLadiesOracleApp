@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { View, Pressable, ScrollView, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { AppText, Chip, LoadingView, PageHeader, Screen } from "../../components/ui";
-import { cardShadow, radius, spacing } from "../../constants/theme";
-import { useTheme } from "../../hooks/useTheme";
+import { AppText, Chip, LoadingView, PageHeader, Screen } from "../../../components/ui";
+import { cardShadow, radius, spacing } from "../../../constants/theme";
+import { useTheme } from "../../../hooks/useTheme";
 
 const API_URL = "https://theladiesoracleapp.onrender.com";
 
@@ -85,7 +85,7 @@ export default function QuestionSelector() {
               console.log(`✅ Selected Question Number: ${q.number}`);
               console.log(`✅ Selected Question Text: ${q.question}`);
               router.push({
-                pathname: "/iconselector",
+                pathname: "/questionselector/iconselector",
                 params: { question: q.number?.toString() },
               });
             }}

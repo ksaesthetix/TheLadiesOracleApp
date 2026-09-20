@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
-import { AppText, Avatar, Button, Card, PageHeader, Screen } from '../../components/ui';
-import { spacing } from '../../constants/theme';
+import { AppText, Avatar, Button, Card, PageHeader, Screen } from '../components/ui';
+import { spacing } from '../constants/theme';
 
 // Define the type for a single friend, adding 'isFollowing'
 interface Friend {

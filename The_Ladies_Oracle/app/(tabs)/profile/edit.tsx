@@ -12,11 +12,11 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import { useAuth } from './contexts/AuthContext';
-import { db } from '../firebaseConfig'; // Import the shared db instance
-import { AppText, Avatar, Button, Card, LoadingView, Screen, TextField } from '../components/ui';
-import { spacing } from '../constants/theme';
-import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../../contexts/AuthContext';
+import { db } from '../../../firebaseConfig'; // Import the shared db instance
+import { AppText, Avatar, Button, Card, LoadingView, Screen, TextField } from '../../../components/ui';
+import { spacing } from '../../../constants/theme';
+import { useTheme } from '../../../hooks/useTheme';
 
 const EditProfileScreen = () => {
   const { user } = useAuth();
