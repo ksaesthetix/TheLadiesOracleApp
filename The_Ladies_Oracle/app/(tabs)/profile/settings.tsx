@@ -1,17 +1,23 @@
-import { Link } from "expo-router";
-import {
-  StyleSheet,
-  Switch,
-} from "react-native";
+import { useRouter } from "expo-router";
+import { Linking, StyleSheet, Switch } from "react-native";
 import { useState } from "react";
 import { AppText, Card, IconBubble, ListRow, PageHeader, Screen } from "../../../components/ui";
+import { BackBar } from "../../../components/BackBar";
 import { spacing } from "../../../constants/theme";
 import { useTheme } from "../../../hooks/useTheme";
+import { useShareChart } from "../../../hooks/useBond";
 
+// TODO: point these at the real pages when they exist.
+const PRIVACY_URL = "https://theladiesoracle.com/";
+const HELP_URL = "https://theladiesoracle.com/";
+
+/** /profile/settings — lives in the You tab's stack, so the tab bar stays visible. */
 export default function Settings() {
+  const router = useRouter();
   const { colors } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const { shareChart, setSharing } = useShareChart();
 
   const switchColors = {
     trackColor: { false: colors.switchTrackOff, true: colors.primary },
@@ -20,7 +26,8 @@ export default function Settings() {
   };
 
   return (
-    <Screen scroll edges={['bottom']} decor>
+    <Screen scroll edges={['top']} decor>
+      <BackBar label="Profile" />
       <PageHeader title="Settings" subtitle="Tune your Oracle experience." />
 
       <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
@@ -53,55 +60,81 @@ export default function Settings() {
       </Card>
 
       <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+        Friends
+      </AppText>
+      <Card padded={false}>
+        <ListRow
+          leading={<IconBubble name="people-outline" tone="primary" />}
+          title="Share my chart with friends"
+          trailing={
+            <Switch
+              value={!!shareChart}
+              disabled={shareChart === null}
+              onValueChange={setSharing}
+              {...switchColors}
+            />
+          }
+        />
+      </Card>
+      <AppText variant="caption" tone="muted" style={styles.hint}>
+        Lets people who follow you see your bond with them (and you theirs). Your birth details are never shown.
+      </AppText>
+
+      <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
         Account
       </AppText>
       <Card padded={false}>
-        <Link href="./profile" asChild>
-          <ListRow
-            leading={<IconBubble name="person-outline" tone="neutral" />}
-            title="Profile"
-            chevron
-            divider
-          />
-        </Link>
-
-        <Link href="./privacy" asChild>
-          <ListRow
-            leading={<IconBubble name="shield-checkmark-outline" tone="neutral" />}
-            title="Privacy Policy"
-            chevron
-            divider
-          />
-        </Link>
-
-        <Link href="./help" asChild>
-          <ListRow
-            leading={<IconBubble name="help-circle-outline" tone="neutral" />}
-            title="Help & Support"
-            chevron
-          />
-        </Link>
+        <ListRow
+          leading={<IconBubble name="create-outline" tone="primary" />}
+          title="Edit Profile"
+          chevron
+          divider
+          onPress={() => router.push('/profile/edit')}
+        />
+        <ListRow
+          leading={<IconBubble name="calendar-outline" tone="accent" />}
+          title="Date & Time of Birth"
+          chevron
+          divider
+          onPress={() => router.push('/dateofbirth')}
+        />
+        <ListRow
+          leading={<IconBubble name="location-outline" tone="accent" />}
+          title="Place of Birth"
+          chevron
+          onPress={() => router.push('/locationdetails')}
+        />
       </Card>
-      {/*
-      <View style={globalStyles.footer}>
-              <Text style={globalStyles.footerText}>
-                2025{" "}
-                <Text
-                  onPress={() => Linking.openURL("https://theladiesoracle.com/")}
-                  style={{ color: "#1e3274" }}
-                >
-                  theladiesoracle
-                </Text>{" "}
-                App v1.0
-              </Text>
-        </View>*/}
+
+      <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+        About
+      </AppText>
+      <Card padded={false}>
+        <ListRow
+          leading={<IconBubble name="shield-checkmark-outline" tone="neutral" />}
+          title="Privacy Policy"
+          chevron
+          divider
+          onPress={() => Linking.openURL(PRIVACY_URL)}
+        />
+        <ListRow
+          leading={<IconBubble name="help-circle-outline" tone="neutral" />}
+          title="Help & Support"
+          chevron
+          onPress={() => Linking.openURL(HELP_URL)}
+        />
+      </Card>
     </Screen>
   );
-};
+}
 
 const styles = StyleSheet.create({
   sectionLabel: {
     marginTop: spacing.lg,
     marginBottom: spacing.md,
+  },
+  hint: {
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.sm,
   },
 });

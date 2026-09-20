@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Card, IconBubble, LoadingView, PageHeader, Screen } from '../../components/ui';
 import { AreaMeters } from '../../components/AreaMeters';
+import { WeekStrip } from '../../components/WeekStrip';
 import { spacing } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useDailyReading } from '../../hooks/useDailyReading';
@@ -102,6 +103,9 @@ export default function TodayScreen() {
               </View>
             </View>
           </Card>
+
+          {/* This week */}
+          <WeekStrip />
 
           {/* Life areas */}
           <Card style={styles.section}>
