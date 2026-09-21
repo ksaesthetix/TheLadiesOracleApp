@@ -9,6 +9,7 @@
  * Environment (Render → Environment):
  *     ANTHROPIC_API_KEY   required — from console.anthropic.com
  *     ANTHROPIC_MODEL     optional — defaults to claude-haiku-4-5-20251001
+ *     ANTHROPIC_WORKSPACE_ID    needed if the key isn't scoped to a workspace (Console → Settings → Workspaces)
  *
  * Request  (Authorization: Bearer <Firebase ID token>)
  *     { date: "YYYY-MM-DD", facts: DailyFacts }      // facts = output of computeDailyFacts() on the device
@@ -30,11 +31,34 @@ Rules:
 - No emojis. No exclamation marks. No lists. No hedging about astrology itself.
 - Do not mention that you are an AI or that this text was generated.
 
-Return ONLY a JSON object with exactly these keys and nothing else:
-{"headline": "max 8 words, no full stop", "reading": "2 to 3 sentences, 45 to 75 words in total", "do": "one concrete action for today, max 12 words", "dont": "one concrete thing to avoid today, max 12 words"}`;
+Deliver the result by calling the write_reading tool — nothing else. Fields: headline (max 8 words, no full stop), reading (2 to 3 sentences, 45 to 75 words in total), do (one concrete action for today, max 12 words), dont (one concrete thing to avoid today, max 12 words).`;
+
+/** Forcing a tool call makes the model return structured JSON in content[].input — no parsing of prose. */
+const READING_TOOL = {
+  name: "write_reading",
+  description: "Deliver today's finished reading.",
+  input_schema: {
+    type: "object",
+    properties: {
+      headline: { type: "string", description: "At most 8 words." },
+      reading: { type: "string", description: "Two or three sentences." },
+      do: { type: "string", description: "One concrete thing to do today." },
+      dont: { type: "string", description: "One concrete thing to avoid today." },
+    },
+    required: ["headline", "reading", "do", "dont"],
+  },
+};
 
 module.exports = function registerDailyReading(app, db, admin) {
   const API_KEY = process.env.ANTHROPIC_API_KEY;
+  // Keys not scoped to a workspace must name one per request (Claude Console → Settings → Workspaces).
+  const WORKSPACE_ID = process.env.ANTHROPIC_WORKSPACE_ID;
+  const anthropicHeaders = () => ({
+    "content-type": "application/json",
+    "x-api-key": API_KEY,
+    "anthropic-version": "2023-06-01",
+    ...(WORKSPACE_ID ? { "anthropic-workspace-id": WORKSPACE_ID } : {}),
+  });
   const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
 
   if (!API_KEY) {
@@ -82,22 +106,20 @@ module.exports = function registerDailyReading(app, db, admin) {
   async function generate(facts) {
     const body = {
       model: MODEL,
-      max_tokens: 400,
+      max_tokens: 600,
       system: SYSTEM_PROMPT,
+      tools: [READING_TOOL],
+      tool_choice: { type: "tool", name: "write_reading" },
       messages: [
         {
           role: "user",
-          content: `Today's facts for this reader, as JSON:\n${JSON.stringify(trimFacts(facts))}\n\nWrite today's reading. JSON only.`,
+          content: `Today's facts for this reader, as JSON:\n${JSON.stringify(trimFacts(facts))}\n\nWrite today's reading.`,
         },
       ],
     };
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: anthropicHeaders(),
       body: JSON.stringify(body),
     });
     if (!response.ok) {
@@ -105,16 +127,24 @@ module.exports = function registerDailyReading(app, db, admin) {
       throw new Error(`Anthropic ${response.status}: ${detail.slice(0, 300)}`);
     }
     const data = await response.json();
-    const raw = (data.content || []).map(c => c.text || "").join("").trim();
-    return parseReading(raw);
+    return parseReading(extractJson(data));
   }
 
-  function parseReading(raw) {
-    // Tolerate code fences or stray text around the JSON.
-    const start = raw.indexOf("{");
-    const end = raw.lastIndexOf("}");
-    if (start === -1 || end === -1) throw new Error("No JSON in model output");
-    const obj = JSON.parse(raw.slice(start, end + 1));
+  /** Prefer the forced tool call's input; fall back to JSON inside any text; log the shape if neither is there. */
+  function extractJson(data) {
+    const content = Array.isArray(data.content) ? data.content : [];
+    const tool = content.find(c => c.type === "tool_use" && c.input && typeof c.input === "object");
+    if (tool) return tool.input;
+    const raw = content.map(c => (c.type === "text" && c.text) || "").join("").trim();
+    const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
+    if (start !== -1 && end > start) {
+      try { return JSON.parse(raw.slice(start, end + 1)); } catch {}
+    }
+    console.error("[anthropic] unusable response:", JSON.stringify({ stop_reason: data.stop_reason, types: content.map(c => c.type), preview: raw.slice(0, 300) }));
+    throw new Error(`No JSON in model output (stop_reason: ${data.stop_reason || "?"})`);
+  }
+
+  function parseReading(obj) {
     const text = {
       headline: String(obj.headline || "").trim().replace(/\.$/, ""),
       reading: String(obj.reading || "").trim(),

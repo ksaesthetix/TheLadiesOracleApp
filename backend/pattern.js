@@ -9,6 +9,7 @@
  * Environment (Render → Environment):
  *     ANTHROPIC_API_KEY         required
  *     ANTHROPIC_PATTERN_MODEL   optional — default claude-sonnet-5 (one call per user, worth the better prose;
+ *     ANTHROPIC_WORKSPACE_ID    needed if the key isn't scoped to a workspace (Console → Settings → Workspaces)
  *                               set claude-haiku-4-5-20251001 to run it cheaper)
  *
  * Request  (Authorization: Bearer <Firebase ID token>)
@@ -34,8 +35,35 @@ Also write "essence": one sentence, max 22 words, that a friend would recognise 
 
 Rules: name placements plainly in the text ("your Moon in Scorpio", "Saturn square your Sun"); if the birth time is unknown, do not mention houses or a rising sign; no health, money, legal, pregnancy or death predictions; no emojis, no exclamation marks, no lists inside the bodies; do not mention that you are an AI.
 
-Return ONLY JSON:
-{"essence": "...", "sections": [{"id": "foundation", "title": "Foundation", "body": "...", "placements": ["Sun in Gemini", "Moon in Pisces"]}, {"id": "development", ...}, {"id": "relationships", ...}, {"id": "edge", "title": "Your edge", ...}]}`;
+Deliver the result by calling the write_pattern tool — nothing else.`;
+
+/** Forcing a tool call makes the model return structured JSON in content[].input — no parsing of prose. */
+const PATTERN_TOOL = {
+  name: "write_pattern",
+  description: "Deliver the finished Your Pattern reading.",
+  input_schema: {
+    type: "object",
+    properties: {
+      essence: { type: "string", description: "One sentence, max 22 words, that a friend would recognise them from." },
+      sections: {
+        type: "array",
+        minItems: 4,
+        maxItems: 4,
+        items: {
+          type: "object",
+          properties: {
+            id: { type: "string", enum: ["foundation", "development", "relationships", "edge"] },
+            title: { type: "string" },
+            body: { type: "string", description: "The section text, plain prose, no lists." },
+            placements: { type: "array", items: { type: "string" }, description: "The placements this section is grounded in, e.g. 'Moon in Scorpio'." },
+          },
+          required: ["id", "title", "body", "placements"],
+        },
+      },
+    },
+    required: ["essence", "sections"],
+  },
+};
 
 const ELEMENT = {
   Aries: "Fire", Leo: "Fire", Sagittarius: "Fire", Taurus: "Earth", Virgo: "Earth", Capricorn: "Earth",
@@ -50,6 +78,14 @@ const SIGNS = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "
 
 module.exports = function registerPattern(app, db, admin) {
   const API_KEY = process.env.ANTHROPIC_API_KEY;
+  // Keys not scoped to a workspace must name one per request (Claude Console → Settings → Workspaces).
+  const WORKSPACE_ID = process.env.ANTHROPIC_WORKSPACE_ID;
+  const anthropicHeaders = () => ({
+    "content-type": "application/json",
+    "x-api-key": API_KEY,
+    "anthropic-version": "2023-06-01",
+    ...(WORKSPACE_ID ? { "anthropic-workspace-id": WORKSPACE_ID } : {}),
+  });
   const MODEL = process.env.ANTHROPIC_PATTERN_MODEL || "claude-sonnet-5";
 
   async function requireUser(req, res, next) {
@@ -102,23 +138,36 @@ module.exports = function registerPattern(app, db, admin) {
     };
   }
 
+  /** Prefer the forced tool call's input; fall back to JSON inside any text; log the shape if neither is there. */
+  function extractJson(data) {
+    const content = Array.isArray(data.content) ? data.content : [];
+    const tool = content.find(c => c.type === "tool_use" && c.input && typeof c.input === "object");
+    if (tool) return tool.input;
+    const raw = content.map(c => (c.type === "text" && c.text) || "").join("").trim();
+    const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
+    if (start !== -1 && end > start) {
+      try { return JSON.parse(raw.slice(start, end + 1)); } catch {}
+    }
+    console.error("[anthropic] unusable response:", JSON.stringify({ stop_reason: data.stop_reason, types: content.map(c => c.type), preview: raw.slice(0, 300) }));
+    throw new Error(`No JSON in model output (stop_reason: ${data.stop_reason || "?"})`);
+  }
+
   async function generate(chart) {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01" },
+      headers: anthropicHeaders(),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 1800,
+        max_tokens: 2500,
         system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: `Natal chart as JSON:\n${JSON.stringify(summarise(chart))}\n\nWrite Your Pattern. JSON only.` }],
+        tools: [PATTERN_TOOL],
+        tool_choice: { type: "tool", name: "write_pattern" },
+        messages: [{ role: "user", content: `Natal chart as JSON:\n${JSON.stringify(summarise(chart))}\n\nWrite Your Pattern.` }],
       }),
     });
     if (!response.ok) throw new Error(`Anthropic ${response.status}: ${(await response.text().catch(() => "")).slice(0, 300)}`);
     const data = await response.json();
-    const raw = (data.content || []).map(c => c.text || "").join("").trim();
-    const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
-    if (start === -1 || end === -1) throw new Error("No JSON in model output");
-    const obj = JSON.parse(raw.slice(start, end + 1));
+    const obj = extractJson(data);
     const sections = Array.isArray(obj.sections) ? obj.sections
       .filter(s => s && typeof s.body === "string" && s.body.trim())
       .map(s => ({
