@@ -21,7 +21,7 @@ export default function IconSelector() {
   const theme = useTheme();
   const { colors } = theme;
   const { width } = useWindowDimensions();
-  const { question } = useLocalSearchParams(); // ✅ Receive question param
+  const { question, questionText } = useLocalSearchParams(); // ✅ Receive question param
 
   const [icons, setIcons] = useState<IconDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +69,8 @@ export default function IconSelector() {
                   pathname: '/questionselector/answerpage',
                   params: {
                     icon_id: iconDoc._id,
-                    question: question // ✅ Pass question along
+                    question: question,
+                    questionText: questionText,
                   }
                 });
               }}

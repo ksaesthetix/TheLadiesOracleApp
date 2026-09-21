@@ -18,16 +18,18 @@ import {
 import { spacing } from "../../../constants/theme";
 import { useTheme } from "../../../hooks/useTheme";
 import { useFollowing } from "../../../hooks/useFriends";
+import { useJournal } from "../../../hooks/useJournal";
 
 /**
- * You tab — the profile. Edit Profile, Settings and Friends live in this same stack
- * (/profile/edit, /profile/settings, /profile/friends) so the tab bar stays on screen.
+ * You tab — the profile. Edit Profile, Settings, Friends and Journal live in this same stack
+ * (/profile/edit, /profile/settings, /profile/friends, /profile/journal) so the tab bar stays on screen.
  */
 export default function ProfileScreen() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { colors } = useTheme();
   const { count: friendsCount, loading: loadingFriends } = useFollowing();
+  const { entries: journalEntries, loading: loadingJournal, insights } = useJournal(300);
 
   const [profileData, setProfileData] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -140,6 +142,30 @@ export default function ProfileScreen() {
             </View>
             <AppText variant="title" style={[styles.statValue, { color: colors.primary }]}>
               {loadingFriends ? '–' : friendsCount}
+            </AppText>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+          </View>
+        </Card>
+      </Pressable>
+
+      {/* Journal → /profile/journal */}
+      <Pressable
+        onPress={() => router.push('/profile/journal')}
+        accessibilityRole="button"
+        accessibilityLabel={`Journal, ${journalEntries.length} entries`}
+        style={({ pressed }) => [pressed && styles.pressed]}
+      >
+        <Card style={styles.statsCard}>
+          <View style={styles.statsRow}>
+            <IconBubble name="book-outline" tone="accent" />
+            <View style={styles.statsText}>
+              <AppText variant="label">Journal</AppText>
+              <AppText variant="caption" tone="secondary">
+                {insights.streak >= 2 ? `${insights.streak}-day check-in streak` : 'Oracle answers, moods, Moon intentions'}
+              </AppText>
+            </View>
+            <AppText variant="title" style={[styles.statValue, { color: colors.primary }]}>
+              {loadingJournal ? '–' : journalEntries.length}
             </AppText>
             <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </View>

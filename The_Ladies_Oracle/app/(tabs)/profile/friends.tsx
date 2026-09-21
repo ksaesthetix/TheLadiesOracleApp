@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, Share, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { AppText, Avatar, Button, Card, PageHeader, Screen } from '../../../components/ui';
+import { AppText, Avatar, Button, Card, PageHeader, Screen, TextField } from '../../../components/ui';
 import { BackBar } from '../../../components/BackBar';
 import { spacing } from '../../../constants/theme';
 import { useTheme } from '../../../hooks/useTheme';
 import { Person, useFollowing, usePeople } from '../../../hooks/useFriends';
 import { auth } from '../../../firebaseConfig';
+
+// TODO: swap for the App Store / Play Store links when the app is published.
+const INVITE_URL = 'https://theladiesoracle.com/';
 
 /**
  * /profile/friends — reached from the friends counter on the profile. Lives in the
@@ -18,7 +21,8 @@ export default function FriendsScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { following, count, loading: loadingFollowing, follow, unfollow, isFollowing } = useFollowing();
-  const { people, loading: loadingPeople, error: peopleError, reload } = usePeople();
+  const { people, loading: loadingPeople, error: peopleError, reload } = usePeople(200);
+  const [search, setSearch] = useState('');
 
   if (!auth.currentUser) {
     return (
@@ -30,8 +34,16 @@ export default function FriendsScreen() {
     );
   }
 
-  const notYetFollowing = people.filter(p => !isFollowing(p.uid));
+  const q = search.trim().toLowerCase();
+  const notYetFollowing = people.filter(p => !isFollowing(p.uid) && (!q || p.name.toLowerCase().includes(q)));
   const openBond = (uid: string) => router.push({ pathname: '/profile/bond/[uid]', params: { uid } });
+
+  const invite = async () => {
+    const me = auth.currentUser?.displayName?.split(' ')[0];
+    await Share.share({
+      message: `${me ? `${me} is` : 'I\u2019m'} on The Ladies\u2019 Oracle \u2014 daily readings from your own birth chart, and you can see how our charts fit together. Join me: ${INVITE_URL}`,
+    });
+  };
 
   return (
     <Screen scroll edges={['top']} decor>
@@ -58,6 +70,17 @@ export default function FriendsScreen() {
 
       {/* Find friends */}
       <AppText variant="overline" tone="muted" style={styles.sectionLabel}>Find friends</AppText>
+      <TextField
+        label="Search by name"
+        icon="search-outline"
+        placeholder="Start typing a name\u2026"
+        value={search}
+        onChangeText={setSearch}
+      />
+      <View style={styles.inviteRow}>
+        <AppText variant="caption" tone="muted" style={styles.grow}>Not here yet? Send them the app.</AppText>
+        <Button title="Invite a friend" variant="outline" size="sm" fullWidth={false} onPress={invite} />
+      </View>
       {loadingPeople ? (
         <ActivityIndicator color={colors.primary} style={styles.spinner} />
       ) : peopleError ? (
@@ -68,7 +91,7 @@ export default function FriendsScreen() {
       ) : notYetFollowing.length === 0 ? (
         <Card tone="alt">
           <AppText variant="body" tone="secondary">
-            {people.length === 0 ? 'No other members yet — you are early.' : 'You already follow everyone here.'}
+            {people.length === 0 ? 'No other members yet — you are early.' : q ? `No one called “${search.trim()}” yet — invite them.` : 'You already follow everyone here.'}
           </AppText>
         </Card>
       ) : (
@@ -113,6 +136,8 @@ function PersonRow({ person, following, onToggle, onOpen }: { person: Person; fo
 
 const styles = StyleSheet.create({
   sectionLabel: { marginTop: spacing.lg, marginBottom: spacing.md },
+  inviteRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm, marginBottom: spacing.md },
+  grow: { flex: 1, marginRight: spacing.sm },
   spinner: { marginVertical: spacing.lg },
   retry: { marginTop: spacing.md },
   itemCard: { marginBottom: spacing.md },

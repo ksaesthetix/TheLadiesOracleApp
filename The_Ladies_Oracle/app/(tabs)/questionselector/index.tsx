@@ -86,7 +86,7 @@ export default function QuestionSelector() {
               console.log(`✅ Selected Question Text: ${q.question}`);
               router.push({
                 pathname: "/questionselector/iconselector",
-                params: { question: q.number?.toString() },
+                params: { question: q.number?.toString(), questionText: q.question },
               });
             }}
             style={({ pressed }) => [

@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Card, IconBubble, LoadingView, PageHeader, Screen } from '../../components/ui';
 import { AreaMeters } from '../../components/AreaMeters';
 import { WeekStrip } from '../../components/WeekStrip';
+import { MoodCheckIn } from '../../components/MoodCheckIn';
+import { DailyReadingShareCard } from '../../components/DailyReadingShareCard';
 import { spacing } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useDailyReading } from '../../hooks/useDailyReading';
@@ -104,6 +106,9 @@ export default function TodayScreen() {
             </View>
           </Card>
 
+          {/* Mood check-in */}
+          <MoodCheckIn />
+
           {/* This week */}
           <WeekStrip />
 
@@ -130,6 +135,12 @@ export default function TodayScreen() {
               Retrograde today: {state.facts.retrograde.map(b => `${BODY_META[b].glyph} ${b}`).join(', ')}
             </AppText>
           )}
+
+          {/* Share today's reading (9:16 story card) */}
+          <Card style={styles.section}>
+            <SectionTitle icon="share-social-outline" title="Share today" subtitle="A story-sized card of your reading" />
+            <DailyReadingShareCard text={state.text} facts={state.facts} compact />
+          </Card>
 
           <AppText variant="caption" tone="muted" style={styles.footer}>
             {state.source === 'local'

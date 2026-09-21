@@ -1,23 +1,26 @@
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppText, Card, PageHeader, Screen } from '../../../components/ui';
 import { fonts, spacing } from '../../../constants/theme';
 import { useTheme } from '../../../hooks/useTheme';
+import { saveOracleAnswer } from '../../../hooks/useJournal';
 
 const API_URL = 'https://theladiesoracleapp.onrender.com';
 
 export default function AnswerPage() {
-  const { icon_id, question} = useLocalSearchParams();
+  const { icon_id, question, questionText } = useLocalSearchParams();
   const { colors } = useTheme();
 
   // Normalize params
   const iconValue = Array.isArray(icon_id) ? icon_id[0] : icon_id;
   const questionValue = Array.isArray(question) ? question[0] : question;
+  const questionTextValue = Array.isArray(questionText) ? questionText[0] : questionText;
 
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(true);
+  const saved = useRef(false); // one journal entry per consultation
 
   useEffect(() => {
     const fetchAnswer = async () => {
@@ -30,6 +33,16 @@ export default function AnswerPage() {
         const data = await res.json();
         console.log(`✅ Final Answer: Icon ID: ${data.icon_id} | Icon Symbol: ${data.iconSymbol} | Question: ${data._id} | Answer Page: ${data.page} | Answer: ${data.answer}`);
         setAnswer(data.answer || 'The Oracle is silent...');
+
+        // Journal it (signed-in users only; addJournalEntry is a no-op otherwise)
+        if (data.answer && !saved.current) {
+          saved.current = true;
+          saveOracleAnswer({
+            question: questionTextValue || `#${questionValue}`,
+            iconSymbol: data.iconSymbol,
+            answer: data.answer,
+          }).catch(err => console.warn('[journal] oracle answer not saved:', err?.message));
+        }
       } catch (error) {
         console.error('❌ Error fetching answer:', error);
         setAnswer('Error fetching answer.');
@@ -46,7 +59,7 @@ export default function AnswerPage() {
       <PageHeader
         eyebrow="Step 3 of 3"
         title="The Oracle Speaks"
-        subtitle={`Question #${questionValue}`}
+        subtitle={questionTextValue ? String(questionTextValue) : `Question #${questionValue}`}
         align="center"
       />
       {loading ? (

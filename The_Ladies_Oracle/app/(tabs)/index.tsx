@@ -1,5 +1,5 @@
-import { Link,useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Link, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Modal,
@@ -19,6 +19,9 @@ import {
 import { radius, spacing } from "../../constants/theme";
 import { useTheme } from "../../hooks/useTheme";
 import { TodaySkyCard } from '../../components/TodaySkyCard';
+import { MoonRitualCard } from '../../components/MoonRitualCard';
+import { addJournalEntry } from '../../hooks/useJournal';
+import { useOnboarding } from '../../hooks/useOnboarding';
 
 const WISE_QUOTES = [
   "Wisdom begins in wonder.",
@@ -37,6 +40,16 @@ export default function Index() {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentQuote, setCurrentQuote] = useState("");
   const { addToArchive } = useWisdomArchive();
+  const { seen: seenIntro } = useOnboarding();
+  const introShown = useRef(false);
+
+  // First launch on this device: show the walkthrough once the Home screen has settled.
+  useEffect(() => {
+    if (seenIntro !== false || introShown.current) return;
+    introShown.current = true;
+    setTimeout(() => router.push('/welcome'), 400);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seenIntro]);
 
   const showRandomQuote = () => {
     const quote = WISE_QUOTES[Math.floor(Math.random() * WISE_QUOTES.length)];
@@ -46,6 +59,7 @@ export default function Index() {
 
   const handleSave = () => {
     addToArchive(currentQuote);
+    addJournalEntry({ type: 'affirmation', text: currentQuote });
     setModalVisible(false);
   };
 
@@ -65,29 +79,8 @@ export default function Index() {
           </AppText>
         </View>
 
-        {/*
-        <Link href="./questionselector" asChild>
-          <TouchableOpacity style={globalStyles.button}>
-            <Text style={globalStyles.buttonText}>Ask The Oracle</Text>
-          </TouchableOpacity>
-        </Link>*/}
-        {/*
-        <Link href="./locationdetails" asChild>
-          <TouchableOpacity style={globalStyles.button}>
-            <Text style={globalStyles.buttonText}>Location Details</Text>
-          </TouchableOpacity>
-        </Link>
-        <Link href="./dateofbirth" asChild>
-          <TouchableOpacity style={globalStyles.button}>
-            <Text style={globalStyles.buttonText}>Date of Birth</Text>
-          </TouchableOpacity>
-        </Link>*/}
-        {/*
-        <Link href="./profile" asChild>
-          <TouchableOpacity style={globalStyles.button}>
-            <Text style={globalStyles.buttonText}>My Account</Text>
-          </TouchableOpacity>
-        </Link>*/}
+        {/* New Moon intention / Full Moon reflection — renders only around a lunation */}
+        <MoonRitualCard />
 
         {/* Featured action */}
         <Pressable
@@ -110,7 +103,8 @@ export default function Index() {
         </Pressable>
 
         <TodaySkyCard onPress={() => router.push('/chart')} style={styles.skyCard} />
-        {/*  
+
+        {/*
         <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
           Account
         </AppText>
@@ -128,27 +122,8 @@ export default function Index() {
             icon={<Ionicons name="person-add-outline" size={18} color={colors.textSecondary} />}
             style={styles.secondaryAction}
           />
-        </Link>*/}
-        {/*
-        <Link href="./settings" asChild>
-          <TouchableOpacity style={globalStyles.button}>
-            <Text style={globalStyles.buttonText}>Settings</Text>
-          </TouchableOpacity>
-        </Link>*/}
-
-        {/*
-        <View style={globalStyles.footer}>
-          <Text style={globalStyles.footerText}>
-            2025{" "}
-            <Text
-              onPress={() => Linking.openURL("https://theladiesoracle.com/")}
-              style={{ color: "#1e3274" }}
-            >
-              theladiesoracle
-            </Text>{" "}
-            App v1.0
-          </Text>
-        </View>*/}
+        </Link>
+        */}
       </Screen>
 
       {/* Modal */}
@@ -248,5 +223,3 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 });
-
-

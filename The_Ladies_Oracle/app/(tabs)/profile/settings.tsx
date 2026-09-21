@@ -111,6 +111,13 @@ export default function Settings() {
       </AppText>
       <Card padded={false}>
         <ListRow
+          leading={<IconBubble name="book-outline" tone="primary" />}
+          title="How it works"
+          chevron
+          divider
+          onPress={() => router.push('/profile/guide')}
+        />
+        <ListRow
           leading={<IconBubble name="shield-checkmark-outline" tone="neutral" />}
           title="Privacy Policy"
           chevron
