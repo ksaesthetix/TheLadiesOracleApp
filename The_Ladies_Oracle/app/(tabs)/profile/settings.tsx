@@ -1,11 +1,13 @@
 import { useRouter } from "expo-router";
-import { Linking, StyleSheet, Switch } from "react-native";
+import { Linking, StyleSheet, Switch, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { AppText, Card, IconBubble, ListRow, PageHeader, Screen } from "../../../components/ui";
 import { BackBar } from "../../../components/BackBar";
 import { spacing } from "../../../constants/theme";
 import { useTheme } from "../../../hooks/useTheme";
 import { useShareChart } from "../../../hooks/useBond";
+import { usePlan } from "../../../hooks/usePlan";
 
 // TODO: point these at the real pages when they exist.
 const PRIVACY_URL = "https://theladiesoracle.com/";
@@ -18,6 +20,7 @@ export default function Settings() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const { shareChart, setSharing } = useShareChart();
+  const { plan } = usePlan();
 
   const switchColors = {
     trackColor: { false: colors.switchTrackOff, true: colors.primary },
@@ -56,6 +59,23 @@ export default function Settings() {
               {...switchColors}
             />
           }
+        />
+      </Card>
+
+      <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+        Membership
+      </AppText>
+      <Card padded={false}>
+        <ListRow
+          leading={<IconBubble name="ribbon-outline" tone="primary" />}
+          title={plan.name}
+          trailing={
+            <View style={styles.trailing}>
+              <AppText variant="caption" tone="secondary">{plan.weeklyLimit === null ? 'Unlimited' : `${plan.weeklyLimit} a week`}</AppText>
+              <Ionicons name="chevron-forward" size={18} color={colors.textMuted} style={styles.trailingChevron} />
+            </View>
+          }
+          onPress={() => router.push('../../paywall')}
         />
       </Card>
 
@@ -144,4 +164,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     paddingHorizontal: spacing.sm,
   },
+  trailing: { flexDirection: 'row', alignItems: 'center' },
+  trailingChevron: { marginLeft: spacing.xs },
 });
