@@ -80,7 +80,7 @@ const LocationDetails = () => {
         await updateDoc(userRef, {
           location_name: selectedItem.location_name,
           longitude: selectedItem.longitude,
-          lattitude: selectedItem.latitude, // Note: Mapping API 'latitude' to your DB 'lattitude'
+          latitude: selectedItem.latitude,
           country: selectedItem.country,
         });
         Alert.alert(

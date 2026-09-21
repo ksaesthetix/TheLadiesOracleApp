@@ -49,13 +49,15 @@ export default function QuestionSelector() {
     return <LoadingView message="Gathering the questions..." />;
   }
 
-  const visibleQuestions =
-    selectedCategory === "All" ? questions : questions.filter((q) => q.category === selectedCategory);
-
   const status = access.status === "ready" ? access.data : null;
   const unveiled = status?.unveiled ?? null; // null = every question open
   const remaining = status?.remaining ?? null;
   const exhausted = remaining === 0;
+
+  // Only today's unveiled questions are shown; veiled ones are hidden until their day comes round.
+  const visibleQuestions = questions
+    .filter((q) => selectedCategory === "All" || q.category === selectedCategory)
+    .filter((q) => !unveiled || q.number === undefined || unveiled.includes(q.number));
 
   const openPlans = () => router.push("/paywall");
 
@@ -64,14 +66,6 @@ export default function QuestionSelector() {
       Alert.alert(
         "That’s your week",
         `You have asked your ${status.limit} question${status.limit === 1 ? "" : "s"} this week. The Oracle returns on ${formatResetDate(status.resetsOn)}.`,
-        [{ text: "See plans", onPress: openPlans }, { text: "OK", style: "cancel" }],
-      );
-      return;
-    }
-    if (unveiled && q.number !== undefined && !unveiled.includes(q.number)) {
-      Alert.alert(
-        "Not unveiled today",
-        `The Oracle unveils ${status?.unveilPerCategory ?? 3} questions from each theme every day. This one comes round again soon — or Lifetime Elite opens every question, every day.`,
         [{ text: "See plans", onPress: openPlans }, { text: "OK", style: "cancel" }],
       );
       return;
@@ -150,9 +144,16 @@ export default function QuestionSelector() {
 
           {/* Scrollable Question List */}
           <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+            {visibleQuestions.length === 0 && (
+              <Card>
+                <AppText variant="heading">Nothing from this theme today</AppText>
+                <AppText variant="body" tone="secondary" style={styles.para}>
+                  The Oracle unveils a few questions from each theme every day. Try another theme, or come back tomorrow.
+                </AppText>
+              </Card>
+            )}
             {visibleQuestions.map((q) => {
-              const locked = !!unveiled && q.number !== undefined && !unveiled.includes(q.number);
-              const dimmed = locked || exhausted;
+              const dimmed = exhausted;
               return (
                 <Pressable
                   key={q._id}
@@ -167,20 +168,19 @@ export default function QuestionSelector() {
                     pressed && { backgroundColor: colors.surfaceAlt, transform: [{ scale: 0.99 }] },
                   ]}
                 >
-                  <View style={[styles.numberBadge, { backgroundColor: dimmed ? colors.border : colors.primarySoft }]}>
+                  {/*<View style={[styles.numberBadge, { backgroundColor: dimmed ? colors.border : colors.primarySoft }]}>
                     <AppText variant="label" tone={dimmed ? "muted" : "primary"}>{q.number}</AppText>
-                  </View>
+                  </View>*/}
                   <View style={styles.questionText}>
                     <AppText variant="body" tone={dimmed ? "secondary" : undefined}>{q.question}</AppText>
-                    {locked && <AppText variant="caption" tone="muted">Veiled today</AppText>}
                   </View>
-                  <Ionicons name={locked ? "lock-closed-outline" : "chevron-forward"} size={18} color={colors.textMuted} />
+                  <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
                 </Pressable>
               );
             })}
             {unveiled && (
               <AppText variant="caption" tone="muted" align="center" style={styles.foot}>
-                {status.unveilPerCategory} questions from each theme are unveiled every day. Veiled ones return in turn.
+                {unveiled.length} questions are unveiled today — {status.unveilPerCategory} from each theme. Tomorrow brings the next. Lifetime Elite sees them all.
               </AppText>
             )}
           </ScrollView>

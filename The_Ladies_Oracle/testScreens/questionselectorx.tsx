@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import globalStyles from "../../constants/styles";
+import globalStyles from "../constants/styles";
 import { useRouter } from "expo-router";
 
 const API_URL = "https://theladiesoracleapp.onrender.com";

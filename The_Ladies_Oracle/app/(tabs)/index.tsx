@@ -22,6 +22,7 @@ import { TodaySkyCard } from '../../components/TodaySkyCard';
 import { MoonRitualCard } from '../../components/MoonRitualCard';
 import { addJournalEntry } from '../../hooks/useJournal';
 import { useOnboarding } from '../../hooks/useOnboarding';
+import { LuckyColourCard } from '../../components/LuckyColourCard';
 
 const WISE_QUOTES = [
   "Wisdom begins in wonder.",
@@ -103,7 +104,7 @@ export default function Index() {
         </Pressable>
 
         <TodaySkyCard onPress={() => router.push('/chart')} style={styles.skyCard} />
-
+        <LuckyColourCard style={styles.skyCard} />
         {/*
         <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
           Account

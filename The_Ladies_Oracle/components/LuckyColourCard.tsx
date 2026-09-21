@@ -11,12 +11,12 @@ export function LuckyColourCard({ style }: { style?: any }) {
     <Card style={[styles.card, style]}>
       <View style={styles.row}>
         <View style={[styles.swatch, { backgroundColor: c.hex }]}>
-          <Text style={[styles.glyph, { color: c.onHex }]}>{luckyColourGlyph(c)}</Text>
+          {/*<Text style={[styles.glyph, { color: c.onHex }]}>{luckyColourGlyph(c)}</Text>*/}
         </View>
         <View style={styles.text}>
           <AppText variant="overline" tone="accent">Lucky colour of the day</AppText>
           <AppText variant="heading">{c.name}</AppText>
-          <AppText variant="caption" tone="secondary">Moon in {c.moonSign}</AppText>
+          {/*<AppText variant="caption" tone="secondary">Moon in {c.moonSign}</AppText>*/}
         </View>
       </View>
       <AppText variant="body" tone="secondary" style={styles.line}>{c.line}</AppText>
