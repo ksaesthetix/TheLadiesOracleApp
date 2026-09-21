@@ -23,5 +23,8 @@ npm-debug.log
 expo-env.d.ts
 # @end expo-cli
 
-#cmd commands
-cmd commands.txt
+#firebase-admin-key.json
+firebase-admin-key.json
+
+#cmd_commands.txt
+cmd_commands.txt

@@ -56,6 +56,8 @@
     "@types/tz-lookup": "^6.1.2",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~57.0.2",
+    "firebase-admin": "^13.10.0",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
   "private": true

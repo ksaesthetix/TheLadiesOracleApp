@@ -69,7 +69,7 @@ export default function Index() {
         <View style={styles.hero}>
           <Logo width={200} />
           <AppText variant="overline" tone="accent" align="center" style={styles.eyebrow}>
-            Welcome
+            Welcome To
           </AppText>
           <AppText variant="display" align="center">
             The Ladies’ Oracle
