@@ -12,6 +12,8 @@ import { BODY_META, NatalChart, SIGN_META, signOf } from '../lib/astrology/natal
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://theladiesoracleapp.onrender.com';
 const TIMEOUT_MS = 90_000; // Sonnet + a sleeping Render instance
+/** Must match PROMPT_VERSION in backend/pattern.js — bumping it regenerates everyone's pattern once. */
+const PROMPT_VERSION = 2;
 
 export interface PatternSection { id: string; title: string; body: string; placements: string[] }
 export interface Pattern { essence: string; sections: PatternSection[] }
@@ -26,7 +28,7 @@ export type PatternState =
 
 function chartKey(c: NatalChart) {
   const i = c.input;
-  return `${i.date}|${i.time ?? '-'}|${i.latitude.toFixed(4)}|${i.longitude.toFixed(4)}|v${c.version}`;
+  return `${i.date}|${i.time ?? '-'}|${i.latitude.toFixed(4)}|${i.longitude.toFixed(4)}|v${c.version}|p${PROMPT_VERSION}`;
 }
 
 function isPattern(v: any): v is Pattern {
@@ -40,18 +42,18 @@ export function composeLocalPattern(c: NatalChart): Pattern {
   const p = (body: string) => c.placements.find(x => x.body === body)!;
   const line = (body: string) => {
     const x = p(body);
-    const where = x.house ? ` in your ${ord(x.house)} house` : '';
-    return `${body} in ${x.sign}${where}${x.retrograde && body !== 'North Node' ? ' (retrograde)' : ''}: ${BODY_META[x.body].blurb.toLowerCase()}, in the manner of ${x.sign} — ${SIGN_META[x.sign].element.toLowerCase()}, ${SIGN_META[x.sign].modality.toLowerCase()}.`;
+    const where = x.house ? `, ${ord(x.house)} house` : '';
+    return `${body} in ${x.sign}${where}${x.retrograde && body !== 'North Node' ? ' (retrograde)' : ''} — ${BODY_META[x.body].blurb.toLowerCase()}.`;
   };
   const rising = c.angles ? signOf(c.angles.ascendant) : null;
   const seventh = c.houses ? signOf(c.houses.cusps[6] + 1) : null;
   return {
     essence: `${c.bigThree.sun} Sun, ${c.bigThree.moon} Moon${rising ? `, ${rising} rising` : ''}.`,
     sections: [
-      { id: 'foundation', title: 'Foundation', body: [line('Sun'), line('Moon'), rising ? `Rising sign ${rising}: how you meet the world, and how it first meets you.` : 'Add your birth time to unlock your rising sign and houses.'].join(' '), placements: [`Sun in ${c.bigThree.sun}`, `Moon in ${c.bigThree.moon}`, ...(rising ? [`${rising} rising`] : [])] },
-      { id: 'development', title: 'Development', body: [line('Mercury'), line('Mars'), line('Jupiter'), line('Saturn')].join(' '), placements: ['Mercury', 'Mars', 'Jupiter', 'Saturn'].map(b => `${b} in ${p(b).sign}`) },
-      { id: 'relationships', title: 'Relationships', body: [line('Venus'), seventh ? `Your 7th house — partnership — is ${seventh}: the kind of other you are drawn to, and the terms you meet them on.` : ''].filter(Boolean).join(' '), placements: [`Venus in ${p('Venus').sign}`, ...(seventh ? [`7th house ${seventh}`] : [])] },
-      { id: 'edge', title: 'Your edge', body: [line('Uranus'), line('Neptune'), line('Pluto'), line('North Node')].join(' '), placements: ['Uranus', 'Neptune', 'Pluto', 'North Node'].map(b => `${b} in ${p(b).sign}`) },
+      { id: 'foundation', title: 'Foundation', body: [line('Sun'), line('Moon'), rising ? `${rising} rising — how you meet the world.` : 'Add your birth time for your rising sign and houses.'].join(' '), placements: [`Sun in ${c.bigThree.sun}`, `Moon in ${c.bigThree.moon}`, ...(rising ? [`${rising} rising`] : [])] },
+      { id: 'development', title: 'Development', body: [line('Mercury'), line('Mars'), line('Saturn')].join(' '), placements: ['Mercury', 'Mars', 'Saturn'].map(b => `${b} in ${p(b).sign}`) },
+      { id: 'relationships', title: 'Relationships', body: [line('Venus'), seventh ? `7th house ${seventh} — the kind of other you are drawn to.` : ''].filter(Boolean).join(' '), placements: [`Venus in ${p('Venus').sign}`, ...(seventh ? [`7th house ${seventh}`] : [])] },
+      { id: 'edge', title: 'Your edge', body: [line('Uranus'), line('North Node')].join(' '), placements: ['Uranus', 'North Node'].map(b => `${b} in ${p(b).sign}`) },
     ],
   };
 }

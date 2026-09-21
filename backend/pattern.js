@@ -21,19 +21,22 @@
  */
 const { FieldValue } = require("firebase-admin/firestore");
 
+/** Bump when the prompt changes so cached patterns regenerate. Must match PROMPT_VERSION in hooks/usePattern.ts. */
+const PROMPT_VERSION = 2;
+
 const SYSTEM_PROMPT = `You write "Your Pattern" for The Ladies' Oracle, an astrology and divination app with the manner of a Victorian parlour oracle and a modern mind.
 
 Voice: warm, elegant, direct, specific. British English. Second person. Concrete observations about how this person tends to think, love, work and change — never generic horoscope filler, never "the universe", never "energies".
 
-You are given a natal chart as JSON. Write four sections, each grounded in the placements named:
-1. "Foundation" — who they are at rest: Sun, Moon, Rising (if known), element and modality balance. 110–150 words.
-2. "Development" — how they think, act and grow: Mercury, Mars, Jupiter, Saturn, and the tightest natal aspects among them. 110–150 words.
-3. "Relationships" — how they love and bond: Venus, Moon, Mars, the 7th-house sign and any planets there, aspects to Venus. 110–150 words.
-4. "Your edge" — what makes them unlike the rest of their year group: Uranus, Neptune, Pluto and the North Node, especially by house. 80–120 words.
+You are given a natal chart as JSON. Write four short sections, each grounded in the placements named. Three or four sentences each, short sentences, no preamble:
+1. "Foundation" — who they are at rest: Sun, Moon, Rising (if known). 55–75 words.
+2. "Development" — how they think, act and grow: Mercury, Mars, Jupiter, Saturn, and the tightest aspect among them. 55–75 words.
+3. "Relationships" — how they love and bond: Venus, Moon, the 7th-house sign if known. 55–75 words.
+4. "Your edge" — what makes them unlike the rest of their year group: whichever of Uranus, Neptune, Pluto and the North Node is most telling. 40–55 words.
 
-Also write "essence": one sentence, max 22 words, that a friend would recognise them from.
+Also write "essence": one sentence, max 14 words, that a friend would recognise them from. For each section list at most three placements.
 
-Rules: name placements plainly in the text ("your Moon in Scorpio", "Saturn square your Sun"); if the birth time is unknown, do not mention houses or a rising sign; no health, money, legal, pregnancy or death predictions; no emojis, no exclamation marks, no lists inside the bodies; do not mention that you are an AI.
+Rules: name placements plainly in the text ("your Moon in Scorpio", "Saturn square your Sun"); if the birth time is unknown, do not mention houses or a rising sign; no health, money, legal, pregnancy or death predictions; no emojis, no exclamation marks, no lists inside the bodies; every sentence must say something specific to this chart — cut anything that could be said of anyone; do not mention that you are an AI.
 
 Deliver the result by calling the write_pattern tool — nothing else.`;
 
@@ -55,7 +58,7 @@ const PATTERN_TOOL = {
             id: { type: "string", enum: ["foundation", "development", "relationships", "edge"] },
             title: { type: "string" },
             body: { type: "string", description: "The section text, plain prose, no lists." },
-            placements: { type: "array", items: { type: "string" }, description: "The placements this section is grounded in, e.g. 'Moon in Scorpio'." },
+            placements: { type: "array", items: { type: "string" }, maxItems: 3, description: "Up to three placements this section is grounded in, e.g. 'Moon in Scorpio'." },
           },
           required: ["id", "title", "body", "placements"],
         },
@@ -101,7 +104,7 @@ module.exports = function registerPattern(app, db, admin) {
 
   function chartKey(chart) {
     const i = chart.input;
-    return `${i.date}|${i.time ?? "-"}|${Number(i.latitude).toFixed(4)}|${Number(i.longitude).toFixed(4)}|v${chart.version}`;
+    return `${i.date}|${i.time ?? "-"}|${Number(i.latitude).toFixed(4)}|${Number(i.longitude).toFixed(4)}|v${chart.version}|p${PROMPT_VERSION}`;
   }
 
   /** Just what the model needs, in a shape it can't misread. */
@@ -158,7 +161,7 @@ module.exports = function registerPattern(app, db, admin) {
       headers: anthropicHeaders(),
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 2500,
+        max_tokens: 1200,
         system: SYSTEM_PROMPT,
         tools: [PATTERN_TOOL],
         tool_choice: { type: "tool", name: "write_pattern" },
