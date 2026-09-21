@@ -109,7 +109,6 @@ module.exports = function registerPattern(app, db, admin) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 1800,
-        temperature: 0.7,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: `Natal chart as JSON:\n${JSON.stringify(summarise(chart))}\n\nWrite Your Pattern. JSON only.` }],
       }),

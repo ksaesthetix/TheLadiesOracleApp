@@ -83,7 +83,6 @@ module.exports = function registerDailyReading(app, db, admin) {
     const body = {
       model: MODEL,
       max_tokens: 400,
-      temperature: 0.8,
       system: SYSTEM_PROMPT,
       messages: [
         {
