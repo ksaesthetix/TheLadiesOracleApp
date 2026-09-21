@@ -179,6 +179,9 @@ app.post("/astrology/geo-details", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch geo details" });
   }
 });
+// ✅ Astrology readings written by Claude (see dailyReading.js / pattern.js)
+require("./dailyReading")(app, db, admin);
+require("./pattern")(app, db, admin);
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
