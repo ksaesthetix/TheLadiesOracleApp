@@ -156,6 +156,7 @@ module.exports = function registerPattern(app, db, admin) {
   }
 
   async function generate(chart) {
+    const t0 = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: anthropicHeaders(),
@@ -170,6 +171,8 @@ module.exports = function registerPattern(app, db, admin) {
     });
     if (!response.ok) throw new Error(`Anthropic ${response.status}: ${(await response.text().catch(() => "")).slice(0, 300)}`);
     const data = await response.json();
+    const usage = data.usage || {};
+    console.log(`[pattern] Anthropic OK · ${MODEL} · ${Date.now() - t0} ms · ${usage.input_tokens ?? "?"} in / ${usage.output_tokens ?? "?"} out tokens · stop: ${data.stop_reason}`);
     const obj = extractJson(data);
     const sections = Array.isArray(obj.sections) ? obj.sections
       .filter(s => s && typeof s.body === "string" && s.body.trim())
@@ -196,12 +199,15 @@ module.exports = function registerPattern(app, db, admin) {
       const snap = await ref.get();
       const cached = snap.exists ? snap.data() : null;
       if (cached && cached.key === key && cached.pattern) {
+        console.log(`[pattern] cache hit for ${req.uid}`);
         return res.json({ key, pattern: cached.pattern, source: "cache" });
       }
       if (!API_KEY) return res.status(503).json({ error: "Your Pattern is not configured on the server" });
 
+      console.log(`[pattern] cache miss for ${req.uid} — asking Anthropic (${MODEL})`);
       const pattern = await generate(chart);
       await ref.set({ key, pattern, model: MODEL, createdAt: FieldValue.serverTimestamp() });
+      console.log(`[pattern] written for ${req.uid} and cached`);
       res.json({ key, pattern, source: "claude" });
     } catch (err) {
       console.error("pattern error:", err);
@@ -209,5 +215,5 @@ module.exports = function registerPattern(app, db, admin) {
     }
   });
 
-  console.log(`✨ /pattern ready (model: ${MODEL})`);
+  console.log(`✨ /pattern ready · model ${MODEL} · API key ${API_KEY ? "set (…" + API_KEY.slice(-4) + ")" : "MISSING"}${WORKSPACE_ID ? " · workspace " + WORKSPACE_ID : ""}`);
 };

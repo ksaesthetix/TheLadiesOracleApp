@@ -104,6 +104,7 @@ module.exports = function registerDailyReading(app, db, admin) {
   }
 
   async function generate(facts) {
+    const t0 = Date.now();
     const body = {
       model: MODEL,
       max_tokens: 600,
@@ -127,6 +128,8 @@ module.exports = function registerDailyReading(app, db, admin) {
       throw new Error(`Anthropic ${response.status}: ${detail.slice(0, 300)}`);
     }
     const data = await response.json();
+    const usage = data.usage || {};
+    console.log(`[daily-reading] Anthropic OK · ${MODEL} · ${Date.now() - t0} ms · ${usage.input_tokens ?? "?"} in / ${usage.output_tokens ?? "?"} out tokens · stop: ${data.stop_reason}`);
     return parseReading(extractJson(data));
   }
 
@@ -166,11 +169,13 @@ module.exports = function registerDailyReading(app, db, admin) {
       const snap = await ref.get();
       const cached = snap.exists ? snap.data() : null;
       if (cached && cached.text && cached.source === "claude") {
+        console.log(`[daily-reading] cache hit for ${req.uid}`);
         return res.json({ date, text: cached.text, source: "cache" });
       }
 
       if (!API_KEY) return res.status(503).json({ error: "Daily reading is not configured on the server" });
 
+      console.log(`[daily-reading] cache miss for ${req.uid} — asking Anthropic (${MODEL})`);
       const text = await generate(facts);
       await ref.set(
         {
@@ -183,6 +188,7 @@ module.exports = function registerDailyReading(app, db, admin) {
         },
         { merge: true }
       );
+      console.log(`[daily-reading] written for ${req.uid} and cached`);
       res.json({ date, text, source: "claude" });
     } catch (err) {
       console.error("daily-reading error:", err);
@@ -190,5 +196,5 @@ module.exports = function registerDailyReading(app, db, admin) {
     }
   });
 
-  console.log(`✨ /daily-reading ready (model: ${MODEL})`);
+  console.log(`✨ /daily-reading ready · model ${MODEL} · API key ${API_KEY ? "set (…" + API_KEY.slice(-4) + ")" : "MISSING"}${WORKSPACE_ID ? " · workspace " + WORKSPACE_ID : ""}`);
 };
