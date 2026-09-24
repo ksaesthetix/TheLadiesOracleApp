@@ -1,17 +1,15 @@
 {
   "expo": {
-    "name": "The_Ladies_Oracle",
+    "name": "The Ladies' Oracle",
     "slug": "The_Ladies_Oracle",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/The_Ladies_Oracle_Logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "theladiesoracle",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.theladiesoracle.TheLadiesOracle",
-      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -23,10 +21,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.theladiesoracle.The_Ladies_Oracle",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.theladiesoracle.The_Ladies_Oracle"
     },
     "web": {
       "output": "static",
@@ -37,7 +33,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/The_Ladies_Oracle_Logo.png",
+          "image": "./assets/images/The_Ladies_Oracle_Logo_mark.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#FBF7F2",
@@ -57,11 +53,18 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
+    "updates": {
+      "url": "https://u.expo.dev/22ff7dbe-0d2d-4710-b49c-f0fdd3db3536"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "190adda7-fda6-4194-bc14-940a864714c5"
+        "projectId": "22ff7dbe-0d2d-4710-b49c-f0fdd3db3536"
       }
-    }
+    },
+    "owner": "ks_aesthetix"
   }
 }

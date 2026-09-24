@@ -21,12 +21,15 @@ import {
 } from "../components/ui";
 import { spacing } from "../constants/theme";
 import { useTheme } from "../hooks/useTheme";
+import { useOnboardingFlow } from "../lib/onboarding";
 
 const LocationDetails = () => {
   const { colors } = useTheme();
+  const { active: onboarding, goNext } = useOnboardingFlow('/locationdetails');
   const [location, setLocation] = useState("");
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const fetchLocationDetails = async () => {
@@ -74,53 +77,54 @@ const LocationDetails = () => {
     setDetails([selectedItem]);
 
     const user = auth.currentUser;
-    if (user) {
-      try {
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, {
-          location_name: selectedItem.location_name,
-          longitude: selectedItem.longitude,
-          latitude: selectedItem.latitude,
-          country: selectedItem.country,
-        });
-        Alert.alert(
-          "Location Updated",
-          "Your location has been successfully updated."
-        );
-      } catch (error) {
-        console.error("Error updating user location:", error);
-        Alert.alert(
-          "Error",
-          "Failed to update your location. Please try again."
-        );
+    if (!user) {
+      Alert.alert("Not Logged In", "You must be logged in to update your location.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        location_name: selectedItem.location_name,
+        longitude: selectedItem.longitude,
+        latitude: selectedItem.latitude,
+        country: selectedItem.country,
+      });
+      if (onboarding) {
+        goNext(); // straight on to birth date & time
+      } else {
+        Alert.alert("Location Updated", "Your birthplace has been saved.", [{ text: "OK", onPress: goNext }]);
       }
-    } else {
-      Alert.alert(
-        "Not Logged In",
-        "You must be logged in to update your location."
-      );
+    } catch (error) {
+      console.error("Error updating user location:", error);
+      Alert.alert("Error", "Failed to update your location. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <Screen scroll edges={['bottom']} decor keyboardAvoiding>
       <PageHeader
-        eyebrow="Your chart"
-        title="Location Details"
-        subtitle="Search for a place, then tap a result to save it to your profile."
+        eyebrow={onboarding ? "Step 1 of 2 · Your chart" : "Your chart"}
+        title={onboarding ? "Where were you born?" : "Location Details"}
+        subtitle="Search for the town or city, then tap the right result."
       />
 
       <Card>
         <TextField
-          label="Location"
+          label="Birthplace"
           icon="location-outline"
-          placeholder="Enter location"
+          placeholder="e.g. London"
           value={location}
           onChangeText={setLocation}
+          onSubmitEditing={fetchLocationDetails}
+          returnKeyType="search"
           error={error || null}
         />
         <Button
-          title="Get Details"
+          title="Search"
           onPress={fetchLocationDetails}
           icon={<Ionicons name="search-outline" size={18} color={colors.onPrimary} />}
           style={styles.submit}
@@ -143,7 +147,7 @@ const LocationDetails = () => {
           {details.map((item, index) => (
             <Pressable
               key={index}
-              onPress={() => handleLocationSelect(item)}
+              onPress={() => !saving && handleLocationSelect(item)}
               style={({ pressed }) => [pressed && styles.pressed]}
             >
               <Card style={styles.resultCard}>
@@ -175,6 +179,10 @@ const LocationDetails = () => {
             </Pressable>
           ))}
         </View>
+      )}
+
+      {onboarding && (
+        <Button title="Skip for now" variant="ghost" onPress={goNext} style={styles.skip} />
       )}
     </Screen>
   );
@@ -209,6 +217,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.9,
+  },
+  skip: {
+    marginTop: spacing.xl,
   },
 });
 

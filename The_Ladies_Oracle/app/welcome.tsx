@@ -6,6 +6,7 @@ import { spacing } from '../constants/theme';
 import { GUIDE, WALKTHROUGH_IDS, IoniconName } from '../constants/guide';
 import { useTheme } from '../hooks/useTheme';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { useOnboardingFlow } from '../lib/onboarding';
 
 /**
  * /welcome — the first-launch walkthrough. Home pushes it once (useOnboarding);
@@ -32,6 +33,7 @@ export default function WelcomeScreen() {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const { markSeen } = useOnboarding();
+  const { goNext } = useOnboardingFlow('/welcome'); // after sign-up → Home; otherwise → back
   const listRef = useRef<FlatList<Slide>>(null);
   const [index, setIndex] = useState(0);
   const last = index === SLIDES.length - 1;
@@ -39,7 +41,7 @@ export default function WelcomeScreen() {
   // Seen the moment it opens, so a dismissed walkthrough doesn't come back next launch.
   useEffect(() => { markSeen(); }, [markSeen]);
 
-  const finish = () => (router.canGoBack() ? router.back() : router.replace('/'));
+  const finish = goNext;
   const next = () => {
     if (last) return finish();
     listRef.current?.scrollToIndex({ index: index + 1, animated: true });

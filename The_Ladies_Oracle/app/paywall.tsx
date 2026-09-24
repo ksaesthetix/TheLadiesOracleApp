@@ -9,6 +9,7 @@ import { usePlan } from '../hooks/usePlan';
 import { usePurchases } from '../hooks/usePurchases';
 import { BLOCKOUT_DAY_NAME, PLANS, PlanInfo, RESET_DAY_NAME } from '../lib/plans';
 import { PRIVACY_URL, TERMS_URL } from '../constants/links';
+import { useOnboardingFlow } from '../lib/onboarding';
 
 /**
  * /paywall — the four circles. Register in the root Stack as
@@ -27,21 +28,29 @@ export default function PaywallScreen() {
   const { colors } = useTheme();
   const { tier: current, plan: currentPlan, signedIn } = usePlan();
   const { purchase, restore } = usePurchases();
+  const { active: onboarding, goNext } = useOnboardingFlow('/paywall');
+  const close = () => (onboarding ? goNext() : router.canGoBack() ? router.back() : router.replace('/'));
 
   return (
     <Screen scroll edges={['top', 'bottom']} decor>
       <View style={styles.topBar}>
-        <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
+        <Pressable onPress={close} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close">
           <Ionicons name="close" size={26} color={colors.textSecondary} />
         </Pressable>
       </View>
 
       <PageHeader
-        eyebrow="Membership"
+        eyebrow={onboarding ? 'Last step' : 'Membership'}
         title="Choose your circle"
-        subtitle={signedIn ? `You are ${currentPlan.group === 'Free' ? 'an' : 'in the'} ${currentPlan.name}.` : 'Log in to join a circle.'}
+        subtitle={onboarding
+          ? 'Start free with two questions a week — you can join a circle any time.'
+          : signedIn ? `You are ${currentPlan.group === 'Free' ? 'an' : 'in the'} ${currentPlan.name}.` : 'Log in to join a circle.'}
         align="center"
       />
+
+      {onboarding && (
+        <Button title="Continue with Explorer — free" onPress={goNext} style={styles.continueFree} />
+      )}
 
       {PLANS.map(plan => {
         const isCurrent = plan.tier === current;
@@ -90,7 +99,9 @@ export default function PaywallScreen() {
         );
       })}
 
-      <Button title="Restore purchases" variant="ghost" onPress={restore} style={styles.restore} />
+      {onboarding
+        ? <Button title="Continue with Explorer — free" variant="outline" onPress={goNext} style={styles.restore} />
+        : <Button title="Restore purchases" variant="ghost" onPress={restore} style={styles.restore} />}
 
       <AppText variant="caption" tone="muted" align="center" style={styles.small}>
         A question counts when you choose it, repeats included. Allowances reset every {RESET_DAY_NAME}. The Oracle rests on {BLOCKOUT_DAY_NAME}s.
@@ -107,6 +118,7 @@ export default function PaywallScreen() {
 
 const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: spacing.xs },
+  continueFree: { marginBottom: spacing.lg },
   card: { marginBottom: spacing.md },
   head: { flexDirection: 'row', alignItems: 'center' },
   headText: { flex: 1, marginLeft: spacing.md },

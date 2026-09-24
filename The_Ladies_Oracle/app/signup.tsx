@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Linking, Alert } from 'react-native';
 import { router } from 'expo-router';
+import { startOnboarding } from '../lib/onboarding';
 import { AppText, Button, Card, Logo, PageHeader, Screen, TextField } from '../components/ui';
 import { spacing } from '../constants/theme';
 import { PRIVACY_URL, TERMS_URL } from '../constants/links';
@@ -32,9 +33,8 @@ export default function SignUp() {
     setBusy(true);
     try {
       await signUpWithEmail({ firstName, lastName, email, password });
-      // Straight into onboarding: Home underneath, Date of Birth on top (Back returns Home).
-      router.replace('/');
-      router.push('/dateofbirth');
+      // Birthplace → birth date & time → choose a circle → welcome tour → Home.
+      startOnboarding(router);
     } catch (err: any) {
       const message = friendlyAuthError(err?.code, err?.message);
       setError(message);
