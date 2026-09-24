@@ -12,7 +12,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { db } from '../../../firebaseConfig';
 import { AppText, Avatar, Button, Card, LoadingView, PageHeader, Screen, TextField } from '../../../components/ui';
 import { BackBar } from '../../../components/BackBar';

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
@@ -18,14 +17,18 @@ import { PlayfairDisplay_400Regular } from '@expo-google-fonts/playfair-display/
 import { PlayfairDisplay_400Regular_Italic } from '@expo-google-fonts/playfair-display/400Regular_Italic';
 import { PlayfairDisplay_600SemiBold } from '@expo-google-fonts/playfair-display/600SemiBold';
 import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { WisdomArchiveProvider } from './contexts/WisdomArchiveContext';
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { WisdomArchiveProvider } from '@/contexts/WisdomArchiveContext';
 import { LoadingView } from '../components/ui';
 import { fonts } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { endOnboarding, isOnboardingInProgress } from '../lib/onboarding';
 
 // Keep the native splash visible until the custom fonts are ready.
 SplashScreen.preventAutoHideAsync();
+
+/** Screens a signed-out person may see. Everything else redirects to /login. */
+const PUBLIC_ROUTES = ['login', 'signup'];
 
 const StackLayout = () => {
   const { user, loading } = useAuth();
@@ -36,13 +39,18 @@ const StackLayout = () => {
   useEffect(() => {
     if (loading) return;
 
-    const authRoutes = ['login', 'signup', 'dateofbirth'];
-    const inAuthRoute = segments.length > 0 && authRoutes.includes(segments[0] as string);
+    const first = segments.length > 0 ? (segments[0] as string) : '';
+    const onPublicRoute = PUBLIC_ROUTES.includes(first);
 
-    if (!user && !inAuthRoute) {
-      router.replace('/login');
+    if (!user) {
+      if (first !== 'signup') endOnboarding(); // a sign-out (or cold start) ends any journey; mid-sign-up we leave the flag alone
+      if (!onPublicRoute) router.replace('/login');
+      return;
     }
-    else if (user && inAuthRoute) {
+
+    // Signed in and still on login/signup: send them Home — unless a sign-up is mid-flight,
+    // in which case signup.tsx is about to move them to the first onboarding step itself.
+    if (onPublicRoute && !isOnboardingInProgress()) {
       router.replace('/');
     }
   }, [user, loading, segments, router]);
@@ -69,15 +77,10 @@ const StackLayout = () => {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Login", presentation: 'modal' }} />
       <Stack.Screen name="signup" options={{ title: "Sign Up", presentation: 'modal' }} />
-      <Stack.Screen name="dateofbirth" options={{ title: "Enter Your Birth Date", presentation: 'modal' }} />
-      <Stack.Screen name="edit_profile" options={{ title: "Edit Profile" }} />
-      <Stack.Screen name="settings" options={{ title: "Settings" }} />
-      {/* Presentation only: friendlier header titles for routes that previously showed their file names */}
-      <Stack.Screen name="questionselector" options={{ title: "Ask the Oracle" }} />
-      <Stack.Screen name="iconselector" options={{ title: "Choose Your Icon" }} />
-      <Stack.Screen name="answerpage" options={{ title: "The Oracle's Answer" }} />
-      <Stack.Screen name="locationdetails" options={{ title: "Location" }} />
-      <Stack.Screen name="profile" options={{ title: "My Profile" }} />
+      <Stack.Screen name="locationdetails" options={{ title: "Birthplace", presentation: 'modal' }} />
+      <Stack.Screen name="dateofbirth" options={{ title: "Date & Time of Birth", presentation: 'modal' }} />
+      <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
+      <Stack.Screen name="welcome" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
     </Stack>
   );
 }

@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useWisdomArchive } from "../contexts/WisdomArchiveContext";
+import { useWisdomArchive } from "@/contexts/WisdomArchiveContext";
 import {
   AppText,
   Button,

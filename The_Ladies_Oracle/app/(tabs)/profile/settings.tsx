@@ -150,7 +150,7 @@ export default function Settings() {
           title="Date & Time of Birth"
           chevron
           divider
-          onPress={() => router.push('/dateofbirth')}
+          onPress={() => { console.log('[settings] DOB tap'); router.push('/dateofbirth'); }}
         />
         <ListRow
           leading={<IconBubble name="location-outline" tone="accent" />}

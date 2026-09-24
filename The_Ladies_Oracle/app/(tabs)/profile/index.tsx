@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Linking, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { auth, db } from "../../../firebaseConfig";
 import { doc, getDoc, Firestore } from "firebase/firestore";
 import {

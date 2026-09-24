@@ -77,7 +77,13 @@ export async function signUpWithEmail(input: { firstName: string; lastName: stri
   const cred = await createUserWithEmailAndPassword(auth, input.email.trim(), input.password);
   const displayName = `${input.firstName.trim()} ${input.lastName.trim()}`.trim();
   await updateProfile(cred.user, { displayName });
-  await ensureUserDocs(cred.user, { firstName: input.firstName.trim(), lastName: input.lastName.trim() });
+  // The account exists from here on. If the documents can't be written right now (rules, network),
+  // don't fail the sign-up — the next login's ensureUserDocs() creates them.
+  try {
+    await ensureUserDocs(cred.user, { firstName: input.firstName.trim(), lastName: input.lastName.trim() });
+  } catch (err: any) {
+    console.warn('[signUp] user documents not written yet:', err?.message);
+  }
   return cred.user;
 }
 

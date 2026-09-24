@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Linking, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { startOnboarding } from '../lib/onboarding';
+import { beginOnboarding, endOnboarding, startOnboarding } from '../lib/onboarding';
 import { AppText, Button, Card, Logo, PageHeader, Screen, TextField } from '../components/ui';
 import { spacing } from '../constants/theme';
 import { PRIVACY_URL, TERMS_URL } from '../constants/links';
@@ -31,11 +31,13 @@ export default function SignUp() {
     if (problem) { setError(problem); return; }
     setError(null);
     setBusy(true);
+    beginOnboarding(); // tells the root auth guard not to bounce us to Home the moment we're signed in
     try {
       await signUpWithEmail({ firstName, lastName, email, password });
       // Birthplace → birth date & time → choose a circle → welcome tour → Home.
       startOnboarding(router);
     } catch (err: any) {
+      endOnboarding();
       const message = friendlyAuthError(err?.code, err?.message);
       setError(message);
       if (err?.code === 'auth/email-already-in-use') {
