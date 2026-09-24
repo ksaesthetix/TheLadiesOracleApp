@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
+import { syncSharedChart } from '../lib/account';
 import { birthDateFromFirestore, computeNatalChart, NatalChart } from '../lib/astrology/natal';
 
 export interface BirthProfile {
@@ -41,14 +42,12 @@ function extractLocation(data: Record<string, unknown>): { latitude: number; lon
   for (const c of containers) {
     if (!c || typeof c !== 'object') continue;
     const o = c as Record<string, unknown>;
-    const lat = num(o.latitude) ?? num(o.lattitude) ?? num(o.lat);
+    const lat = num(o.latitude) ?? num(o.lat);
     const lon = num(o.longitude) ?? num(o.lng) ?? num(o.lon) ?? num(o.long);
     if (lat !== null && lon !== null) {
-      const place = [o.location_name, o.placeName, o.name, o.formatted, o.formattedAddress, o.city, o.town, data.location_name, data.birthCity, data.city]
-        .find(v => typeof v === 'string' && v.trim()) as string | undefined;
-      const country = typeof data.country === 'string' && data.country.trim() ? data.country : undefined;
-      const placeName = place && country && !place.includes(country) ? `${place}, ${country}` : place ?? country ?? null;
-      return { latitude: lat, longitude: lon, placeName };
+      const nameSource = [o.placeName, o.name, o.formatted, o.formattedAddress, o.city, o.town, data.birthCity, data.city, data.placeOfBirthName]
+        .find(v => typeof v === 'string' && v.trim());
+      return { latitude: lat, longitude: lon, placeName: (nameSource as string | undefined) ?? null };
     }
   }
   return null;
@@ -114,6 +113,8 @@ export function useNatalChart() {
         if (!cancelled) setState({ status: 'ready', chart, profile, fromCache: false });
         // Cache best-effort; the screen already has the chart.
         setDoc(ref, { natalChart: chart }, { merge: true }).catch(err => console.warn('[useNatalChart] cache write failed', err));
+        // If this person shares their chart with friends, refresh the public copy too.
+        syncSharedChart(user.uid, chart).catch(err => console.warn('[useNatalChart] shared copy not updated', err?.message));
       } catch (err: any) {
         console.error('[useNatalChart]', err);
         if (!cancelled) setState({ status: 'error', message: err?.message ?? 'Something went wrong reading your chart.' });

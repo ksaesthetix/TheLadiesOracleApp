@@ -106,7 +106,8 @@ async function main() {
     console.log(`Deleting ${snap.size} test users…`);
     for (const d of snap.docs) {
       await auth.deleteUser(d.id).catch(e => console.warn(`  auth ${d.id}: ${e.message}`));
-      await db.recursiveDelete(d.ref); // doc + following/journal/daily/pattern
+      await db.recursiveDelete(d.ref); // doc + following/journal/daily/pattern/billing/usage
+      await db.collection('profiles').doc(d.id).delete().catch(() => {});
       console.log(`  ✓ ${d.data().name} (${d.id})`);
     }
     if (followUid) {
@@ -131,6 +132,8 @@ async function main() {
       uid = (await auth.createUser({ email, password: TEST_PASSWORD, displayName: p.name, photoURL: doc.photoURL, emailVerified: true })).uid;
     }
     await db.collection('users').doc(uid).set({ ...doc, createdAt: FieldValue.serverTimestamp() }, { merge: true });
+    // Public profile (what Find friends and Bonds read); chart is published because shareChart is true.
+    await db.collection('profiles').doc(uid).set({ name: doc.name, photoURL: doc.photoURL, shareChart: true, chart: doc.natalChart, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     created.push({ uid, name: p.name, photoURL: doc.photoURL });
     console.log(`✓ ${p.name.padEnd(18)} ${uid}  ${doc.natalChart.bigThree.sun}/${doc.natalChart.bigThree.moon}/${doc.natalChart.bigThree.rising ?? '—'}`);
   }
@@ -141,8 +144,8 @@ async function main() {
     const me = meSnap.data()!;
     const batch = db.batch();
     for (const u of created) {
-      batch.set(db.collection('users').doc(followUid).collection('following').doc(u.uid), { name: u.name, photoURL: u.photoURL, followedAt: FieldValue.serverTimestamp() }, { merge: true });
-      batch.set(db.collection('users').doc(u.uid).collection('following').doc(followUid), { name: me.name ?? 'You', photoURL: me.photoURL ?? null, followedAt: FieldValue.serverTimestamp() }, { merge: true });
+      batch.set(db.collection('users').doc(followUid).collection('following').doc(u.uid), { uid: u.uid, name: u.name, photoURL: u.photoURL, followedAt: FieldValue.serverTimestamp() }, { merge: true });
+      batch.set(db.collection('users').doc(u.uid).collection('following').doc(followUid), { uid: followUid, name: me.name ?? 'You', photoURL: me.photoURL ?? null, followedAt: FieldValue.serverTimestamp() }, { merge: true });
     }
     await batch.commit();
     console.log(`✓ ${me.name ?? followUid} now follows all ${created.length}, and they follow back`);

@@ -1,13 +1,14 @@
 /**
  * The bond between the signed-in user and one friend: both natal charts → synastry.
  *
- * Consent: a chart is only compared when its owner has turned on
- * `users/{uid}.shareChart`. Both sides must have it on — yours so friends can see you,
- * theirs so you can see them.
+ * Consent: a chart is only compared when its owner has turned on sharing, which copies
+ * their chart to the public `profiles/{uid}` document. Both sides must have it on — yours
+ * so friends can see you, theirs so you can see them. `users/*` is never read for a friend.
  */
 import { useCallback, useEffect, useState } from 'react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
+import { getPublicProfile, setChartSharing } from '../lib/account';
 import { useNatalChart } from './useNatalChart';
 import { computeBond, Bond } from '../lib/astrology/synastry';
 import { NatalChart } from '../lib/astrology/natal';
@@ -36,7 +37,7 @@ export function useShareChart() {
 
   useEffect(() => {
     if (!uid) { setShareChart(false); return; }
-    getDoc(doc(db, 'users', uid))
+    getDoc(doc(db, 'profiles', uid))
       .then(snap => setShareChart(snap.exists() && snap.data().shareChart === true))
       .catch(() => setShareChart(false));
   }, [uid]);
@@ -44,7 +45,14 @@ export function useShareChart() {
   const setSharing = useCallback(async (value: boolean) => {
     if (!uid) return;
     setShareChart(value);
-    await setDoc(doc(db, 'users', uid), { shareChart: value }, { merge: true });
+    // The chart copy travels with the switch: on → publish the cached chart, off → remove it.
+    let chart: NatalChart | null = null;
+    if (value) {
+      const me = await getDoc(doc(db, 'users', uid)).catch(() => null);
+      const cached = me?.exists() ? me.data().natalChart : null;
+      chart = cached && cached.version === 1 ? (cached as NatalChart) : null;
+    }
+    await setChartSharing(uid, value, chart);
   }, [uid]);
 
   return { shareChart, setSharing };
@@ -63,14 +71,13 @@ export function useBond(friendUid: string | undefined) {
 
     (async () => {
       try {
-        const snap = await getDoc(doc(db, 'users', friendUid));
-        const data = snap.exists() ? snap.data() : {};
+        const pub = await getPublicProfile(friendUid);
         const friend: FriendProfile = {
           uid: friendUid,
-          name: (typeof data.name === 'string' && data.name.trim()) || 'Your friend',
-          photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
-          shareChart: data.shareChart === true,
-          chart: data.natalChart && data.natalChart.version === 1 ? (data.natalChart as NatalChart) : null,
+          name: pub?.name ?? 'Your friend',
+          photoURL: pub?.photoURL ?? null,
+          shareChart: pub?.shareChart ?? false,
+          chart: pub?.chart ?? null,
         };
         if (cancelled) return;
         if (mine.status !== 'ready') { setState({ status: 'my-chart-missing' }); return; }
@@ -83,7 +90,7 @@ export function useBond(friendUid: string | undefined) {
         if (!cancelled) setState({
           status: 'error',
           message: err?.code === 'permission-denied'
-            ? 'Reading a friend’s profile needs the Firestore rule from the friends install notes.'
+            ? 'Reading a friend’s profile needs the `profiles` Firestore rule — see the accounts INSTALL.md.'
             : err?.message ?? 'Could not load this bond.',
         });
       }

@@ -84,6 +84,7 @@ app.post("/astrology/geo-details", async (req, res) => {
 });
 
 // ✨ Astrology readings written by Claude (see dailyReading.js / pattern.js)
+require("./account")(app, db, admin);
 require("./dailyReading")(app, db, admin);
 require("./pattern")(app, db, admin);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Card, IconBubble, PageHeader, Screen } from '../components/ui';
@@ -8,6 +8,7 @@ import { useTheme } from '../hooks/useTheme';
 import { usePlan } from '../hooks/usePlan';
 import { usePurchases } from '../hooks/usePurchases';
 import { BLOCKOUT_DAY_NAME, PLANS, PlanInfo, RESET_DAY_NAME } from '../lib/plans';
+import { PRIVACY_URL, TERMS_URL } from '../constants/links';
 
 /**
  * /paywall — the four circles. Register in the root Stack as
@@ -95,6 +96,11 @@ export default function PaywallScreen() {
         A question counts when you choose it, repeats included. Allowances reset every {RESET_DAY_NAME}. The Oracle rests on {BLOCKOUT_DAY_NAME}s.
         Subscriptions renew automatically until cancelled in your App Store or Google Play settings.
       </AppText>
+      <View style={styles.legalRow}>
+        <AppText variant="caption" tone="primary" onPress={() => Linking.openURL(TERMS_URL)}>Terms of Use</AppText>
+        <AppText variant="caption" tone="muted">  ·  </AppText>
+        <AppText variant="caption" tone="primary" onPress={() => Linking.openURL(PRIVACY_URL)}>Privacy Policy</AppText>
+      </View>
     </Screen>
   );
 }
@@ -113,5 +119,6 @@ const styles = StyleSheet.create({
   priceButton: { marginTop: spacing.xs },
   free: { textAlign: 'center' },
   restore: { marginTop: spacing.sm },
-  small: { marginTop: spacing.md, marginBottom: spacing.xl, paddingHorizontal: spacing.md },
+  small: { marginTop: spacing.md, paddingHorizontal: spacing.md },
+  legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: spacing.sm, marginBottom: spacing.xl },
 });

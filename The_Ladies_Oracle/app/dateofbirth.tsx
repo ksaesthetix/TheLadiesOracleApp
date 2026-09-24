@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { doc, updateDoc } from "firebase/firestore";
 import { db, auth } from '../firebaseConfig';
 import { AppText, Button, Card, IconBubble, PageHeader, Screen } from '../components/ui';
@@ -12,6 +13,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 
 const DateOfBirth = () => {
   const { colors } = useTheme();
+  const router = useRouter();
   const [date, setDate] = useState(new Date());
   // The time is optional. Until the user actually picks one we must not save the
   // current clock time as if it were their birth time — the chart needs to know
@@ -66,6 +68,8 @@ const DateOfBirth = () => {
           timeOfBirth: timeSet ? formattedTime : null,
         });
         console.log('Successfully updated user data in Firestore!');
+        // Back to wherever we came from (Home after sign-up, Settings otherwise).
+        if (router.canGoBack()) router.back(); else router.replace('/');
       } catch (error) {
         console.error('Error updating user data:', error);
       }

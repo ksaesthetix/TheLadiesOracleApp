@@ -1,17 +1,17 @@
 import { useRouter } from "expo-router";
-import { Linking, StyleSheet, Switch, View } from "react-native";
+import { Alert, Linking, StyleSheet, Switch, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "../../../firebaseConfig";
 import { AppText, Card, IconBubble, ListRow, PageHeader, Screen } from "../../../components/ui";
 import { BackBar } from "../../../components/BackBar";
 import { spacing } from "../../../constants/theme";
 import { useTheme } from "../../../hooks/useTheme";
 import { useShareChart } from "../../../hooks/useBond";
 import { usePlan } from "../../../hooks/usePlan";
-
-// TODO: point these at the real pages when they exist.
-const PRIVACY_URL = "https://theladiesoracle.com/";
-const HELP_URL = "https://theladiesoracle.com/";
+import { deleteAccount } from "../../../lib/account";
+import { PRIVACY_URL, SITE_URL, TERMS_URL } from "../../../constants/links";
 
 /** /profile/settings — lives in the You tab's stack, so the tab bar stays visible. */
 export default function Settings() {
@@ -21,6 +21,40 @@ export default function Settings() {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const { shareChart, setSharing } = useShareChart();
   const { plan } = usePlan();
+  const [deleting, setDeleting] = useState(false);
+
+  const handleLogOut = () => {
+    Alert.alert("Log out?", "You can log back in any time.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Log out", style: "destructive", onPress: async () => { await signOut(auth); router.replace("/login"); } },
+    ]);
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Delete your account?",
+      "This removes your chart, journal, friends and membership record for good. It cannot be undone. If you have a subscription, cancel it separately in your App Store or Google Play settings.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete everything",
+          style: "destructive",
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await deleteAccount();
+              Alert.alert("Account deleted", "Thank you for spending time with the Oracle.");
+              router.replace("/login");
+            } catch (err: any) {
+              Alert.alert("Couldn't delete the account", err?.message ?? "Please try again in a moment.");
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const switchColors = {
     trackColor: { false: colors.switchTrackOff, true: colors.primary },
@@ -75,7 +109,7 @@ export default function Settings() {
               <Ionicons name="chevron-forward" size={18} color={colors.textMuted} style={styles.trailingChevron} />
             </View>
           }
-          onPress={() => router.push('../../paywall')}
+          onPress={() => router.push('/paywall')}
         />
       </Card>
 
@@ -122,7 +156,14 @@ export default function Settings() {
           leading={<IconBubble name="location-outline" tone="accent" />}
           title="Place of Birth"
           chevron
+          divider
           onPress={() => router.push('/locationdetails')}
+        />
+        <ListRow
+          leading={<IconBubble name="log-out-outline" tone="neutral" />}
+          title="Log out"
+          chevron
+          onPress={handleLogOut}
         />
       </Card>
 
@@ -145,12 +186,34 @@ export default function Settings() {
           onPress={() => Linking.openURL(PRIVACY_URL)}
         />
         <ListRow
+          leading={<IconBubble name="document-text-outline" tone="neutral" />}
+          title="Terms of Use"
+          chevron
+          divider
+          onPress={() => Linking.openURL(TERMS_URL)}
+        />
+        <ListRow
           leading={<IconBubble name="help-circle-outline" tone="neutral" />}
           title="Help & Support"
           chevron
-          onPress={() => Linking.openURL(HELP_URL)}
+          onPress={() => Linking.openURL(SITE_URL)}
         />
       </Card>
+
+      <AppText variant="overline" tone="muted" style={styles.sectionLabel}>
+        Danger zone
+      </AppText>
+      <Card padded={false}>
+        <ListRow
+          leading={<IconBubble name="trash-outline" tone="neutral" />}
+          title={deleting ? "Deleting…" : "Delete my account"}
+          chevron
+          onPress={deleting ? undefined : handleDeleteAccount}
+        />
+      </Card>
+      <AppText variant="caption" tone="muted" style={styles.hint}>
+        Removes your account and everything in it. This cannot be undone.
+      </AppText>
     </Screen>
   );
 }

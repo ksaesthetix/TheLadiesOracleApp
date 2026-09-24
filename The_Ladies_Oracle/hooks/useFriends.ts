@@ -4,8 +4,8 @@
  *   users/{uid}/following/{friendUid}  { name, photoURL, followedAt }
  *
  * `useFollowing()` subscribes live (the profile counter updates the moment you follow
- * someone on the Friends screen). `usePeople()` lists other users to follow, reading
- * only `name` / `photoURL` from their `users` documents.
+ * someone on the Friends screen). `usePeople()` lists other people from the public
+ * `profiles/{uid}` collection (name + photo only) — `users/*` stays private.
  */
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -62,6 +62,7 @@ export function useFollowing() {
   const follow = useCallback(async (person: Person) => {
     if (!uid || person.uid === uid) return;
     await setDoc(doc(db, 'users', uid, 'following', person.uid), {
+      uid: person.uid, // lets the server clean up when this person deletes their account
       name: person.name,
       photoURL: person.photoURL,
       followedAt: serverTimestamp(),
@@ -78,7 +79,7 @@ export function useFollowing() {
   return { following, count: following.length, loading, error, follow, unfollow, isFollowing };
 }
 
-/** Other users, for the "Find friends" list. Needs Firestore to allow signed-in users to read `users/*`. */
+/** Other people, for the "Find friends" list — from `profiles/*`, readable by any signed-in user. */
 export function usePeople(max = 50) {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,7 +90,7 @@ export function usePeople(max = 50) {
     if (!uid) { setPeople([]); setLoading(false); return; }
     setLoading(true);
     try {
-      const snap = await getDocs(query(collection(db, 'users'), orderBy('name'), limit(max)));
+      const snap = await getDocs(query(collection(db, 'profiles'), orderBy('name'), limit(max)));
       setPeople(
         snap.docs
           .filter(d => d.id !== uid)
@@ -99,7 +100,7 @@ export function usePeople(max = 50) {
     } catch (err: any) {
       console.warn('[usePeople]', err?.message);
       setError(err?.code === 'permission-denied'
-        ? 'Finding friends needs permission to read other profiles — see the Firestore rule in INSTALL.md.'
+        ? 'Finding friends needs the `profiles` Firestore rule — see the accounts INSTALL.md.'
         : err?.message ?? 'Could not load people.');
     } finally {
       setLoading(false);

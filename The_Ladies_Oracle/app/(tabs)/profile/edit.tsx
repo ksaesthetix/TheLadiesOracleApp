@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-    View,
-    Pressable,
-    StyleSheet,
-    Alert,
-    Platform
+  View,
+  Pressable,
+  StyleSheet,
+  Alert,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,11 +13,14 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
-import { db } from '../../../firebaseConfig'; // Import the shared db instance
-import { AppText, Avatar, Button, Card, LoadingView, Screen, TextField } from '../../../components/ui';
+import { db } from '../../../firebaseConfig';
+import { AppText, Avatar, Button, Card, LoadingView, PageHeader, Screen, TextField } from '../../../components/ui';
+import { BackBar } from '../../../components/BackBar';
 import { spacing } from '../../../constants/theme';
 import { useTheme } from '../../../hooks/useTheme';
+import { updatePublicProfile } from '../../../lib/account';
 
+/** /profile/edit — lives in the You tab's stack, so the tab bar stays visible. */
 const EditProfileScreen = () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -29,11 +32,10 @@ const EditProfileScreen = () => {
   const [saving, setSaving] = useState(false);
 
   const fetchUserData = useCallback(async () => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
 
     setLoading(true);
     try {
-      // Use the imported db instance directly
       const userDocRef = doc(db, 'users', user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
@@ -104,6 +106,8 @@ const EditProfileScreen = () => {
       });
 
       await updateProfile(user, { displayName: name, photoURL: newPhotoURL });
+      // Friends see the public profile, so keep it in step.
+      await updatePublicProfile(user.uid, { name, photoURL: newPhotoURL ?? null });
 
       Alert.alert("Success", "Your profile has been updated!");
       router.back();
@@ -119,8 +123,21 @@ const EditProfileScreen = () => {
     return <LoadingView message="Loading..." />;
   }
 
+  if (!user) {
+    return (
+      <Screen centered edges={['top']} decor>
+        <Ionicons name="person-circle-outline" size={64} color={colors.textMuted} />
+        <AppText variant="heading" align="center" style={styles.stateTitle}>You are not logged in.</AppText>
+        <Button title="Go to Login" fullWidth={false} onPress={() => router.replace('/login')} style={styles.stateAction} />
+      </Screen>
+    );
+  }
+
   return (
-    <Screen scroll edges={['bottom']} decor keyboardAvoiding>
+    <Screen scroll edges={['top']} decor keyboardAvoiding>
+      <BackBar label="Profile" />
+      <PageHeader title="Edit Profile" subtitle="Your name and picture, as the Oracle sees you." />
+
       <View style={styles.avatarSection}>
         <Pressable onPress={pickImage} style={styles.avatarWrap} accessibilityRole="button" accessibilityLabel="Change picture">
           <Avatar uri={profilePicUri} name={name} size={128} />
@@ -165,7 +182,7 @@ const EditProfileScreen = () => {
 const styles = StyleSheet.create({
   avatarSection: {
     alignItems: 'center',
-    paddingTop: spacing.xxl,
+    paddingTop: spacing.lg,
     marginBottom: spacing.xxxl,
   },
   avatarWrap: {
@@ -190,6 +207,12 @@ const styles = StyleSheet.create({
   },
   save: {
     marginTop: spacing.xxl,
+  },
+  stateTitle: {
+    marginTop: spacing.lg,
+  },
+  stateAction: {
+    marginTop: spacing.xl,
   },
 });
 
