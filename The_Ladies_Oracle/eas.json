@@ -5,8 +5,7 @@
   },
   "build": {
     "base": {
-      "node": "22.20.0",
-      "channel": "base"
+      "node": "22.20.0"
     },
     "development": {
       "extends": "base",
@@ -32,6 +31,14 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6815679556",
+        "appleTeamId": "4T9F9LV73F",
+        "ascApiKeyPath": "/home/user/keys/AuthKey_KDLHTP296W.p8",
+        "ascApiKeyId": "KDLHTP296W",
+        "ascApiKeyIssuerId": "5ac0ec60-9e84-4c8d-9138-e1f44856dcf5"
+      }
+    }
   }
 }

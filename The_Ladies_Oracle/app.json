@@ -10,6 +10,11 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.theladiesoracle.TheLadiesOracle",
+      "icon": {
+        "light": "./assets/images/icon.png",
+        "dark": "./assets/images/icon-dark.png",
+        "tinted": "./assets/images/android-icon-monochrome.png"
+      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -40,6 +45,12 @@
           "dark": {
             "backgroundColor": "#171015"
           }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a picture from your photos for your Oracle profile."
         }
       ],
       "@react-native-community/datetimepicker",
